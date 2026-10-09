@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WiseTrack İzleme</title>
+<meta name="theme-color" content="#141A20">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WiseTrack İzle">
+<link rel="manifest" href="izle.webmanifest">
+<link rel="icon" href="icons/favicon-64.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#141A20; --panel:#1B232B; --panel-2:#222C35; --ink:#E1E6EA; --muted:#97A3AE; --line:#33404B;
+  --accent:#F0A53A; --accent-ink:#1B1204; --rec:#FF5B4F; --ok:#5BC48E; --warn:#E6B54A;
+  --font:"Barlow", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-num:"Barlow Semi Condensed", "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  box-sizing:border-box; color-scheme:dark;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+[hidden]{display:none !important}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{white-space:nowrap;padding:10px 16px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);cursor:pointer;font-size:15px;font-weight:500}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.brand{font-family:var(--font-num);font-weight:600;font-size:22px}
+.brand span{color:var(--accent)}
+
+/* connect */
+.connect{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px}
+.connect form{width:min(460px,100%);display:flex;flex-direction:column;gap:16px}
+.connect h1{font-size:26px;margin:0;font-weight:600}
+.connect p{margin:0;color:var(--muted)}
+#codeIn{font-family:var(--font-num);font-weight:600;font-size:44px;letter-spacing:.14em;text-transform:uppercase;text-align:center;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);width:100%}
+.err{color:var(--warn);min-height:1.4em}
+
+/* live */
+.live{height:100%;display:grid;grid-template-columns:minmax(0,1fr) 400px;grid-template-rows:auto minmax(0,1fr)}
+.head{grid-column:1 / -1;display:flex;align-items:center;gap:14px;padding:10px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.head .meta{color:var(--muted);font-size:15px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conn{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--muted)}
+.cdot{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.cdot.on{background:var(--ok)} .cdot.bad{background:var(--warn)}
+.videobox{background:#000;position:relative;min-height:0;display:flex;align-items:center;justify-content:center}
+#rv{width:100%;height:100%;object-fit:contain;display:block}
+.vmsg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#C9D1D8;padding:20px;font-size:18px}
+.side{border-left:1px solid var(--line);overflow:auto;padding:16px;display:flex;flex-direction:column;gap:16px}
+.status{display:flex;align-items:center;gap:8px;font-size:16px;color:var(--muted)}
+.dot{width:11px;height:11px;border-radius:50%;background:var(--muted);flex:none}
+.dot.rec{background:var(--rec);animation:blink 1.2s steps(2,start) infinite}
+.dot.armed{background:var(--warn)} .dot.done{background:var(--ok)}
+@keyframes blink{to{visibility:hidden}}
+@media (prefers-reduced-motion: reduce){.dot.rec{animation:none}}
+.clock{font-family:var(--font-num);font-weight:600;font-size:60px;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.clock small{font-size:20px;color:var(--muted);font-weight:500;margin-left:6px}
+.progress{height:5px;background:var(--panel-2);border-radius:3px;overflow:hidden;margin-top:8px}
+.progress div{height:100%;width:0;background:var(--accent)}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.metric{background:var(--panel);padding:10px 12px}
+.metric .v{font-family:var(--font-num);font-weight:600;font-size:28px;font-variant-numeric:tabular-nums;line-height:1.1}
+.metric .v small{font-size:15px;color:var(--muted);font-weight:500;margin-left:3px}
+.metric .k{font-size:13.5px;color:var(--muted)}
+table{width:100%;border-collapse:collapse}
+th{font-weight:500;color:var(--muted);font-size:13px;text-align:right;padding:0 4px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child{text-align:left}
+td{padding:7px 4px;border-bottom:1px solid var(--line);text-align:right;font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:17px}
+td:first-child{text-align:left;font-family:var(--font);font-size:15px;white-space:nowrap}
+tr.agg td{font-weight:600}
+tr.inside td:first-child{color:var(--accent);font-weight:600}
+.zsw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:8px}
+.derived{display:flex;flex-direction:column;gap:6px}
+.derived div{display:flex;justify-content:space-between;gap:8px}
+.derived b{font-family:var(--font-num);font-size:20px;font-variant-numeric:tabular-nums}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap}
+.ctrls .btn{flex:1}
+.note{font-size:13.5px;color:var(--muted);margin:0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10}
+.toast.show{opacity:1}
+
+@media (max-width:980px), (orientation: portrait){
+  .live{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto;height:auto;min-height:100%}
+  .videobox{aspect-ratio:4/3;max-height:60vh}
+  .side{border-left:0;overflow:visible}
+  .clock{font-size:56px}
+}
+@media (min-width:1600px){ .live{grid-template-columns:minmax(0,1fr) 480px} .clock{font-size:76px} .clock small{font-size:24px} td{font-size:19px} }
+</style>
+</head>
+<body>
+<section class="connect" id="vConnect">
+  <form id="connForm" autocomplete="off">
+    <div class="brand">Wise<span>Track</span></div>
+    <h1>İzleme ekranı</h1>
+    <p>Telefonda WiseTrack’in Yansıt sekmesinde “Yansıtmayı başlat”a dokunun ve görünen kodu buraya girin.</p>
+    <input id="codeIn" maxlength="6" inputmode="text" autocapitalize="characters" spellcheck="false" aria-label="Bağlantı kodu" placeholder="KOD">
+    <button type="submit" class="btn primary">Bağlan</button>
+    <div class="err" id="connErr" role="alert"></div>
+  </form>
+</section>
+
+<section class="live" id="vLive" hidden>
+  <div class="head">
+    <div class="brand">Wise<span>Track</span></div>
+    <div class="meta" id="meta">Bağlanıyor…</div>
+    <div class="conn"><span class="cdot" id="cdot"></span><span id="ctext">Bağlanıyor</span></div>
+    <button type="button" class="btn" id="fsBtn">Tam ekran</button>
+    <button type="button" class="btn" id="discBtn">Bağlantıyı kes</button>
+  </div>
+  <div class="videobox">
+    <video id="rv" playsinline muted autoplay></video>
+    <div class="vmsg" id="vmsg">Görüntü bekleniyor…</div>
+  </div>
+  <aside class="side">
+    <div>
+      <div class="status"><span class="dot" id="sDot"></span><span id="sText">–</span></div>
+      <div class="clock" id="clock">00:00.0<small id="clockTot"></small></div>
+      <div class="progress"><div id="prog"></div></div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="v" id="mDist">0<small>cm</small></div><div class="k">Toplam mesafe</div></div>
+      <div class="metric"><div class="v" id="mSpeed">0<small>cm/s</small></div><div class="k">Ortalama hız</div></div>
+      <div class="metric"><div class="v" id="mImmob">0<small>s</small></div><div class="k">Hareketsiz süre</div></div>
+      <div class="metric"><div class="v" id="mDet">–<small>%</small></div><div class="k">Algılanan kare</div></div>
+    </div>
+    <table>
+      <thead><tr><th>Bölge</th><th>Süre (s)</th><th>%</th><th id="thEnt">Giriş</th><th id="thLat">İlk giriş</th></tr></thead>
+      <tbody id="zoneBody"></tbody>
+    </table>
+    <div class="derived" id="derived"></div>
+    <div>
+      <div class="ctrls">
+        <button type="button" class="btn primary" id="cMain" disabled>Başlat</button>
+        <button type="button" class="btn" id="cEnd" disabled>Bitir</button>
+        <button type="button" class="btn" id="cReset" disabled>Sıfırla</button>
+      </div>
+      <p class="note" id="ctlNote">Uzaktan kontrol telefonda açılırsa bu düğmeler etkinleşir.</p>
+    </div>
+    <p class="note" id="detText"></p>
+  </aside>
+</section>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="vendor/peerjs.min.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const nf1 = new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const nf0 = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 });
+const fmtClock = s => { s = Math.max(0, s || 0); const m = Math.floor(s / 60), r = s - m * 60; return String(m).padStart(2, '0') + ':' + (r < 10 ? '0' : '') + r.toFixed(1); };
+const fmtMin = s => { const m = Math.floor(s / 60), r = Math.round(s - m * 60); return String(m).padStart(2, '0') + ':' + String(r).padStart(2, '0'); };
+const LKEY = 'wisetrack.viewer.code';
+const CODE_RE = /^[A-Z2-9]{6}$/;
+
+function peerOpts() {
+  const q = new URLSearchParams(location.search), o = { debug: 1, config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] } };
+  const ps = q.get('ps');
+  if (ps) { const [host, port] = ps.split(':'); Object.assign(o, { host, port: +port || 9000, path: q.get('pp') || '/', secure: q.has('pss') ? q.get('pss') === '1' : location.protocol === 'https:' }); }
+  return o;
+}
+
+let peer = null, conn = null, code = '', retryT = null, alive = false, lastState = null;
+
+function setConn(t, cls) { $('#ctext').textContent = t; $('#cdot').className = 'cdot' + (cls ? ' ' + cls : ''); }
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 3200); }
+
+function begin(c) {
+  code = c.toUpperCase();
+  try { localStorage.setItem(LKEY, code); } catch (e) {}
+  if (location.hash.slice(1) !== code) history.replaceState(null, '', location.pathname + location.search + '#' + code);
+  $('#vConnect').hidden = true; $('#vLive').hidden = false;
+  $('#meta').textContent = 'Kod ' + code;
+  alive = true; wake(); openPeer();
+}
+function openPeer() {
+  if (typeof Peer === 'undefined') { setConn('Kütüphane yüklenemedi', 'bad'); return; }
+  if (peer) { try { peer.destroy(); } catch (e) {} }
+  setConn('Sunucuya bağlanıyor…');
+  peer = new Peer(undefined, peerOpts());
+  peer.on('open', () => dial());
+  peer.on('call', call => {
+    call.answer();
+    call.on('stream', s => { const v = $('#rv'); v.srcObject = s; v.play().catch(() => {}); $('#vmsg').hidden = true; });
+    call.on('close', () => { $('#vmsg').hidden = false; $('#vmsg').textContent = 'Görüntü akışı kapandı.'; });
+  });
+  peer.on('disconnected', () => { if (alive && !peer.destroyed) setTimeout(() => { try { peer.reconnect(); } catch (e) {} }, 1500); });
+  peer.on('error', err => {
+    const t = err && err.type;
+    if (t === 'peer-unavailable') setConn('Telefon bulunamadı; yansıtmanın açık olduğundan emin olun', 'bad');
+    else if (t === 'network' || t === 'server-error' || t === 'socket-error' || t === 'socket-closed') setConn('Sunucuya ulaşılamıyor', 'bad');
+    else setConn('Hata: ' + (err && err.message ? err.message : t), 'bad');
+    scheduleRetry();
+  });
+}
+function dial() {
+  if (!alive || !peer || !peer.open) return;
+  if (conn) { try { conn.close(); } catch (e) {} }
+  setConn('Telefona bağlanıyor…');
+  const c = peer.connect('wisetrack-' + code, { reliable: true, serialization: 'json' });
+  conn = c;
+  c.on('open', () => { setConn('Bağlı', 'on'); c.send({ t: 'hello' }); });
+  c.on('data', onData);
+  c.on('close', () => { if (conn === c) { setConn('Bağlantı koptu, yeniden deneniyor…', 'bad'); $('#vmsg').hidden = false; $('#vmsg').textContent = 'Bağlantı koptu. Yeniden bağlanılıyor…'; scheduleRetry(); } });
+  c.on('error', () => scheduleRetry());
+}
+function scheduleRetry() {
+  if (!alive) return;
+  clearTimeout(retryT);
+  retryT = setTimeout(() => { if (conn && conn.open) return; if (peer && peer.open) dial(); else openPeer(); }, 4000);
+}
+function stopAll() {
+  alive = false; clearTimeout(retryT);
+  if (conn) try { conn.close(); } catch (e) {}
+  if (peer) try { peer.destroy(); } catch (e) {}
+  conn = null; peer = null; $('#rv').srcObject = null;
+  $('#vLive').hidden = true; $('#vConnect').hidden = false; $('#vmsg').hidden = false; $('#vmsg').textContent = 'Görüntü bekleniyor…';
+  history.replaceState(null, '', location.pathname + location.search);
+}
+
+function onData(d) {
+  if (!d || typeof d !== 'object') return;
+  if (d.t === 'toast') { toast(d.msg); return; }
+  if (d.t !== 'state') return;
+  lastState = d;
+  $('#meta').textContent = [d.test, d.animal, d.code].filter(Boolean).join(', ') + '. Bağlantı kodu ' + code;
+  const st = d.status;
+  $('#sDot').className = 'dot' + (st === 'running' ? ' rec' : st === 'armed' ? ' armed' : st === 'done' ? ' done' : '');
+  $('#sText').textContent = d.statusText;
+  $('#clock').firstChild.nodeValue = fmtClock(d.elapsed);
+  $('#clockTot').textContent = d.duration > 0 ? '/ ' + fmtMin(d.duration) : '';
+  $('#prog').style.width = d.duration > 0 ? Math.min(100, d.elapsed / d.duration * 100) + '%' : '0%';
+  $('#mDist').firstChild.nodeValue = nf1.format(d.dist);
+  $('#mSpeed').firstChild.nodeValue = nf1.format(d.speed);
+  $('#mImmob').firstChild.nodeValue = nf1.format(d.immob);
+  $('#mDet').firstChild.nodeValue = d.det == null ? '–' : nf0.format(d.det);
+  if (d.entLabel) { $('#thEnt').textContent = d.entLabel; $('#thLat').textContent = d.latLabel; }
+  const tb = $('#zoneBody'); tb.textContent = '';
+  for (const z of d.zones || []) {
+    const tr = document.createElement('tr'); if (z.agg) tr.classList.add('agg'); if (z.inside) tr.classList.add('inside');
+    const td0 = document.createElement('td'), sw = document.createElement('span'); sw.className = 'zsw'; sw.style.background = /^#[0-9a-f]{6}$/i.test(z.color) ? z.color : '#888';
+    td0.append(sw, document.createTextNode(String(z.name))); tr.append(td0);
+    for (const v of [nf1.format(z.time), z.pct == null ? '–' : nf1.format(z.pct), String(z.entries), z.lat == null ? '–' : nf1.format(z.lat)]) { const td = document.createElement('td'); td.textContent = v; tr.append(td); }
+    tb.append(tr);
+  }
+  const der = $('#derived'); der.textContent = '';
+  for (const [k, v] of d.derived || []) { const r = document.createElement('div'), a = document.createElement('span'), b = document.createElement('b'); a.textContent = k; b.textContent = v; r.append(a, b); der.append(r); }
+  const locked = st === 'running' || st === 'paused' || st === 'armed';
+  $('#cMain').textContent = d.mainText; $('#cMain').disabled = !d.control || !d.source;
+  $('#cEnd').disabled = !d.control || !locked; $('#cReset').disabled = !d.control || locked;
+  $('#ctlNote').hidden = !!d.control;
+  $('#detText').textContent = d.detText || '';
+  if (!d.source) { $('#vmsg').hidden = false; $('#vmsg').textContent = 'Telefonda görüntü kaynağı açılmadı.'; }
+}
+const send = cmd => { if (conn && conn.open) conn.send({ t: 'cmd', cmd }); };
+$('#cMain').addEventListener('click', () => send('main'));
+$('#cEnd').addEventListener('click', () => send('end'));
+$('#cReset').addEventListener('click', () => send('reset'));
+$('#discBtn').addEventListener('click', stopAll);
+$('#fsBtn').addEventListener('click', () => {
+  const el = document.documentElement;
+  if (document.fullscreenElement || document.webkitFullscreenElement) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+  else (el.requestFullscreen || el.webkitRequestFullscreen || (() => toast('Bu tarayıcı tam ekranı desteklemiyor.'))).call(el);
+});
+
+let wl = null;
+async function wake() { try { if ('wakeLock' in navigator && !wl && document.visibilityState === 'visible') { wl = await navigator.wakeLock.request('screen'); wl.addEventListener('release', () => { wl = null; }); } } catch (e) {} }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && alive) { wake(); if (!(conn && conn.open)) scheduleRetry(); } });
+
+$('#codeIn').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); $('#connErr').textContent = ''; });
+$('#connForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const c = $('#codeIn').value.trim().toUpperCase();
+  if (!CODE_RE.test(c)) { $('#connErr').textContent = 'Kod 6 karakter olmalı (harf ve 2–9 arası rakamlar).'; return; }
+  begin(c);
+});
+const fromHash = decodeURIComponent(location.hash.slice(1)).toUpperCase();
+if (CODE_RE.test(fromHash)) begin(fromHash);
+else { try { const l = localStorage.getItem(LKEY); if (l) $('#codeIn').value = l; } catch (e) {} $('#codeIn').focus(); }
+if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+</script>
+</body>
+</html>
