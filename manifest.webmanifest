@@ -1,7 +1,7 @@
 {
   "name": "WiseTrack",
   "short_name": "WiseTrack",
-  "description": "Açık alan, yükseltilmiş artı labirent, yeni obje tanıma ve Morris su labirenti için telefon kamerasıyla canlı davranış izleme",
+  "description": "Açık alan, yükseltilmiş artı labirent, yeni obje tanıma, Morris su labirenti ve Barnes labirenti için telefon kamerasıyla canlı davranış izleme",
   "lang": "tr",
   "id": "./index.html",
   "start_url": "./index.html",

@@ -1,6 +1,6 @@
 /* WiseTrack service worker: keeps the app usable offline (tracking works without internet;
    mirroring needs the network). Bump VERSION when files change. */
-const VERSION = 'wisetrack-v7';
+const VERSION = 'wisetrack-v10';
 const SHELL = [
   './', './index.html', './izle.html', './manifest.webmanifest', './izle.webmanifest',
   './vendor/peerjs.min.js', './vendor/qrcode.js',

@@ -59,6 +59,8 @@ Kurulum > Test düzeneği'nde **Obje tanıma**'yı seçin ve aşamayı (Alışma
 
 Keşif, varsayılan olarak hayvanın **burun noktasının** objeye 2 cm'den yakın olmasıyla sayılır; gövde merkezi objenin üstündeyse (tırmanma) keşif sayılmaz. Burun noktası gövde şeklinden (baş ucu daha dar) ve hareket yönünden tahmin edilir; ekranda camgöbeği bir nokta olarak görünür. Sonuçlarda her obje için keşif süresi, keşif sayısı, ilk keşif latansı; testte ayırt etme indeksi DI = (Yeni − Tanıdık) / (Yeni + Tanıdık) ve tanıma indeksi RI verilir. Burun tahmini, el ile skorlanmış birkaç videoyla karşılaştırılarak doğrulanmalıdır; gerekirse ölçüt “Merkez noktası”na alınabilir.
 
+**Hayvanla aynı renkte objeler.** Uygulama objenin kendisini hayvan sanmaması için üç önlem alır: (1) canlı kamerada “Hayvan arenada algılanınca başlat” açıkken Başlat'a basıldığında boş arena (objeler son yerlerindeyken) kendiliğinden yeniden kaydedilir; bu sırada ekranda “Boş arena kaydediliyor, hayvanı henüz koymayın” yazar. (2) Ardından her obje kontrol edilir; boş arenaya rağmen hâlâ hayvan gibi görünen bir obje (örneğin referans kaydedildikten sonra yeri değişmişse ya da videoda referans yoksa) o deneme için hayvan algılamasından çıkarılır, ekranda uyarı çıkar ve Excel özetine yazılır. (3) Tamamen bir objenin üzerinde kalan bir leke, hayvan az önce oradaysa (tırmanma) dışında, hiçbir zaman hayvan olarak seçilmez. Algılamadan çıkarılan objede tırmanma ayırt edilemez ve objenin 0,5 cm yakınındaki burun ucu görünmez; keşif süresi bu nedenle biraz düşük çıkabilir. Kurulum'daki “Obje alanlarını hayvan algılamasından her zaman çıkar” seçeneği aynı çıkarmayı her denemede uygular.
+
 ## 7. Morris su labirenti (MWM)
 
 Kurulum > Test düzeneği'nde **Su labirenti**'ni seçin, havuz ve platform çapını girin, aşamayı (Öğrenme / Prob testi / Görünür platform) ve başlangıç noktasını seçin. Görüntüdeki K, D, G, B noktalarını havuz kenarındaki kuzey, doğu, güney ve batı işaretlerine sürükleyin; platformu görüntüde sürükleyerek gerçek yerine koyun. Hedef ve karşı çeyrek platformun konumundan kendiliğinden belirlenir. Hayvan yokken Algılama > **Boş arenayı kaydet** ile boş havuzu kaydedin; bu, su yüzeyindeki sabit ışık yansımalarının hayvan sanılmasını önler. Su labirenti seçildiğinde deneme süresi 60 saniyeye ayarlanır.
@@ -68,7 +70,18 @@ Kurulum > Test düzeneği'nde **Su labirenti**'ni seçin, havuz ve platform çap
 
 Excel dosyasının *Tek satır* sayfasında “Hedef çeyrek” ve “Karşı çeyrek” sütunları her hayvanda aynı adla yer alır; platformun yeri gruplar arasında farklı olsa bile sonuçlar alt alta yapıştırılabilir.
 
-## 8. MPG, AVI ve diğer video biçimleri
+## 8. Barnes labirenti
+
+Kurulum > Test düzeneği'nde **Barnes labirenti**'ni seçin; platform çapını, delik sayısını, delik çapını ve delik merkezinin platform kenarına uzaklığını girin (varsayılan fare platformu: 92 cm, 20 delik, 5 cm). K, D, G, B noktalarını platform kenarına sürükleyin; **K noktası 1 numaralı deliğin hizasında** olmalıdır, delikler saat yönünde numaralanır. Çizilen delik halkası görüntüdeki deliklerle örtüşmüyorsa **Delikleri otomatik hizala**'ya dokunun ya da kaydırıcıyla döndürün. Hedef (kaçış) deliğini listeden seçin ya da görüntüde deliğe dokunun. Hayvan yokken Algılama > **Boş arenayı kaydet** ile boş platformu kaydedin; aksi hâlde koyu delikler (özellikle siyah hayvanla) hayvan sanılabilir. Barnes seçildiğinde deneme süresi 180 saniyeye ayarlanır.
+
+- **Delik ziyareti:** hayvanın burun noktası deliğin kenarına en çok 1 cm yaklaştığında (ayarlanabilir) ziyaret sayılır. Hedef dışı her ziyaret bir hatadır; aynı deliğe tekrar ziyaret de sayılır.
+- **Öğrenme:** birincil latans, birincil hata ve birincil yol (hedef deliğe ilk ziyarete kadar); toplam latans, toplam hata ve toplam yol (kaçış kutusuna girene kadar) verilir. Hayvan hedef deliğin yanında 1 saniye (ayarlanabilir) görüntüden kaybolduğunda kaçış kutusuna girmiş sayılır ve deneme biter; kaybolma anı toplam latanstır.
+- **Prob testi:** hedef deliğe ve diğer deliklere ziyaret sayısı, hedef delik ziyaret oranı, hedef çeyrekte geçen süre ve birincil ölçümler verilir.
+- **Arama stratejisi** otomatik önerilir: *Doğrudan* (en çok 3 hata, hepsi hedefe 2 delik mesafede), *Seri* (tek yönde ardışık en az 3 komşu delik), diğerleri *Rastgele*. Delik ziyaret sırası Excel özetine yazılır; öneri bu sıra üzerinden kontrol edilmelidir.
+
+Excel'in *Tek satır* sayfasında delik sütunları “Delik 1 … Delik N”, çeyrekler “Hedef / Karşı / Yan” olarak adlandırılır; hedef delik hayvandan hayvana değişse de sonuçlar alt alta yapıştırılabilir.
+
+## 9. MPG, AVI ve diğer video biçimleri
 
 Tarayıcılar MP4 (H.264), MOV ve WebM videolarını doğrudan açar. MPG/MPEG (MPEG-1/2), VOB, AVI, WMV, FLV, TS/MTS gibi biçimler seçildiğinde uygulama **MP4'e dönüştür ve aç** düğmesini gösterir. Dönüştürme tamamen cihazda, ffmpeg.wasm ile yapılır; video hiçbir yere gönderilmez. Dönüştürücü (yaklaşık 32 MB) ilk kullanımda jsDelivr'den indirilir ve tarayıcı önbelleğinde kalır, bu yüzden ilk dönüştürmede internet gerekir. Geçmeli (interlaced) DVR/DVD kayıtları otomatik olarak düzeltilir ve görüntü en çok 960 piksel genişliğe indirilir. Bilgisayarda 1 dakikalık standart çözünürlüklü video yaklaşık yarım dakikada dönüşür; telefonda daha yavaştır. Dönüşen dosya **Dönüştürülen videoyu kaydet** ile saklanırsa aynı video tekrar analiz edilirken yeniden dönüştürmek gerekmez.
 
@@ -78,11 +91,11 @@ ffmpeg.wasm (@ffmpeg/core 0.12.10) GPL-2.0-or-later lisanslıdır; uygulama onu 
 
 Videodan analizde hız seçeneği bir üst sınırdır. Tarayıcı saniyede ekranın yenilenme sayısı kadar (çoğunlukla 60) kare verebildiği ve yoğun cihaz ayrıca kare kaçırabildiği için, uygulama hızı her kare işlenecek şekilde kendisi ayarlar: kare kaçmadıkça hızlanır, kaçtığı anda yavaşlar. Analiz bitince ortalama hız ve atlanan kare oranı gösterilir ve Excel/CSV özetine yazılır; oran %1'in üstündeyse analiz daha düşük hız sınırıyla tekrarlanmalıdır. Yumuşatma da kare sayısı yerine süreye göre uygulanır, böylece aynı video hangi hızda analiz edilirse edilsin aynı sonucu verir.
 
-## 9. İnternetsiz tek dosya sürümü (bilgisayarlar için)
+## 10. İnternetsiz tek dosya sürümü (bilgisayarlar için)
 
 `wisetrack.html` ayrı olarak da verilir: bilgisayara indirip çift tıklayınca Chrome ya da Edge'de açılır; kurulum, internet ve hesap gerekmez. Kamera, video analizi ve Excel dahil her şey çalışır; yalnızca uygulama içi yansıtma bu sürümde kapalıdır ve MPG gibi biçimlerin dönüştürülmesi için internet gerekir. Telefonlarda indirilen HTML dosyaları güvenilir biçimde açılmadığı için telefonda web adresi + ana ekrana ekle yolunu kullanın.
 
-## 10. Kendi sinyal sunucunuz (isteğe bağlı)
+## 11. Kendi sinyal sunucunuz (isteğe bağlı)
 
 Genel PeerJS sunucusu erişilemezse ya da kurum içinde kalmak isterseniz, ağdaki bir bilgisayarda `npx peer --port 9000` çalıştırıp her iki sayfayı `?ps=SUNUCU_IP:9000` ekiyle açabilirsiniz (https yoksa `&pss=0` de ekleyin).
 

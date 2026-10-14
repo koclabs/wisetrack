@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>WiseTrack</title>
-<meta name="description" content="Açık alan, yükseltilmiş artı labirent, yeni obje tanıma ve Morris su labirenti için telefon kamerasıyla canlı davranış izleme">
+<meta name="description" content="Açık alan, yükseltilmiş artı labirent, yeni obje tanıma, Morris su labirenti ve Barnes labirenti için telefon kamerasıyla canlı davranış izleme">
 <meta name="theme-color" content="#1B232B">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -135,8 +135,11 @@ input[type=checkbox]{accent-color:var(--accent);width:18px;height:18px;margin:0;
 .rangehead output{font-family:var(--font-num);font-weight:600;font-variant-numeric:tabular-nums}
 .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel-2)}
 .seg.grid2{display:grid;grid-template-columns:1fr 1fr}
-.seg.grid2 > *:nth-child(-n+2) label{border-bottom:1px solid var(--line)}
+.seg.grid2 > * label{border-bottom:1px solid var(--line)}
 .seg.grid2 > *:nth-child(2n) label{border-right:0}
+.seg.grid2 > *:last-child:nth-child(odd){grid-column:1 / -1}
+.seg.grid2 > *:last-child label,.seg.grid2 > *:nth-last-child(2):nth-child(odd) label{border-bottom:0}
+.seg.grid2 > *:last-child label{border-right:0}
 .seg > *{flex:1 1 0;min-width:0;position:relative}
 .seg input{position:absolute;opacity:0;pointer-events:none;inset:0}
 .seg label,.seg button{display:block;width:100%;text-align:center;padding:9px 6px;font-size:14px;cursor:pointer;border:0;background:transparent;border-right:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -269,6 +272,7 @@ tr.inside td:first-child{color:var(--accent);font-weight:600}
           <div><input type="radio" name="arena" id="arEPM" value="epm"><label for="arEPM">Artı labirent</label></div>
           <div><input type="radio" name="arena" id="arNOR" value="nor"><label for="arNOR">Obje tanıma</label></div>
           <div><input type="radio" name="arena" id="arMWM" value="mwm"><label for="arMWM">Su labirenti</label></div>
+          <div><input type="radio" name="arena" id="arBAR" value="barnes"><label for="arBAR">Barnes labirenti</label></div>
         </div>
         <div id="ofFields" class="stack">
           <div class="pair">
@@ -310,6 +314,34 @@ tr.inside td:first-child{color:var(--accent);font-weight:600}
           <p class="hint">K, D, G, B noktalarını havuz kenarındaki kuzey, doğu, güney ve batı işaretlerine sürükleyin. Platformu görüntüde sürükleyerek gerçek yerine taşıyın; hedef çeyrek kendiliğinden belirlenir. Boş havuzu (hayvan yokken) Algılama sekmesinden kaydetmeyi unutmayın.</p>
           <p class="hint" id="mwmInfo"></p>
         </div>
+        <div id="barFields" class="stack" hidden>
+          <div class="pair">
+            <div class="field"><label for="barD">Platform çapı (cm)</label><input type="number" inputmode="decimal" id="barD" min="30" max="300" step="1"></div>
+            <div class="field"><label for="barN">Delik sayısı</label><input type="number" inputmode="numeric" id="barN" min="4" max="40" step="1"></div>
+            <div class="field"><label for="barH">Delik çapı (cm)</label><input type="number" inputmode="decimal" id="barH" min="1" max="20" step="0.5"></div>
+            <div class="field"><label for="barE">Delik merkezi–kenar (cm)</label><input type="number" inputmode="decimal" id="barE" min="1" max="40" step="0.5"></div>
+          </div>
+          <div class="field"><span class="lbl">Aşama</span>
+            <div class="seg" role="radiogroup" aria-label="Barnes aşaması">
+              <div><input type="radio" name="barPhase" id="bpTrain" value="train"><label for="bpTrain">Öğrenme</label></div>
+              <div><input type="radio" name="barPhase" id="bpProbe" value="probe"><label for="bpProbe">Prob testi</label></div>
+            </div>
+          </div>
+          <p class="hint" id="barPhaseHint"></p>
+          <div class="field"><label for="barT">Hedef (kaçış) deliği</label><select id="barT"></select></div>
+          <div class="field">
+            <div class="rangehead"><label for="barRot">Delik halkasını döndür</label><output id="barRotO"></output></div>
+            <input type="range" id="barRot" min="-10" max="10" step="0.25">
+          </div>
+          <div class="row"><button type="button" class="btn small primary" id="barAlign">Delikleri otomatik hizala</button></div>
+          <p class="hint">K, D, G, B noktalarını platform kenarına sürükleyin; K noktası 1 numaralı deliğin hizasında olmalı. Delikler görüntüdekilerle tam örtüşmüyorsa “Delikleri otomatik hizala”ya dokunun ya da kaydırıcıyla döndürün. Hedef deliği listeden seçebilir ya da görüntüde deliğe dokunarak belirleyebilirsiniz. Hayvan yokken boş platformu Algılama sekmesinden kaydedin.</p>
+          <div class="pair">
+            <div class="field"><label for="barPoint">Ziyaret ölçütü</label><select id="barPoint"><option value="nose">Burun noktası</option><option value="center">Merkez noktası</option></select></div>
+            <div class="field"><label for="barTol">Ziyaret mesafesi (cm)</label><input type="number" inputmode="decimal" id="barTol" min="0" max="5" step="0.5"></div>
+          </div>
+          <div class="field" id="barLostRow"><label for="barLost">Kaçış kutusuna giriş: hedef delikte kaybolma süresi (s)</label><input type="number" inputmode="decimal" id="barLost" min="0.2" max="10" step="0.1"></div>
+          <p class="hint" id="barInfo"></p>
+        </div>
         <div id="norFields" class="stack" hidden>
           <div class="pair">
             <div class="field"><label for="norW">Genişlik (cm)</label><input type="number" inputmode="decimal" id="norW" min="5" max="500" step="0.5"></div>
@@ -332,6 +364,7 @@ tr.inside td:first-child{color:var(--accent);font-weight:600}
               <div class="field"><label for="norZone">Keşif mesafesi (cm)</label><input type="number" inputmode="decimal" id="norZone" min="0" max="10" step="0.5"></div>
             </div>
             <label class="check"><input type="checkbox" id="norClimb">Objenin üstüne çıkmayı keşif sayma</label>
+            <label class="check"><input type="checkbox" id="norMask">Obje alanlarını hayvan algılamasından her zaman çıkar</label>
             <div class="field"><label for="norStop">Toplam keşif bu süreye ulaşınca bitir (s, 0 = kapalı)</label><input type="number" inputmode="numeric" id="norStop" min="0" max="600" step="1"></div>
           </div>
         </div>
@@ -506,8 +539,9 @@ const DEFAULTS = {
   arena: 'of', animal: 'albino', bg: 'dark',
   of: { w: 50, h: 50, centerPct: 50 },
   epm: { arm: 50, width: 10 },
+  barnes: { d: 92, n: 20, hd: 5, edge: 4.5, rot: 0, target: 0, phase: 'train', point: 'nose', tol: 1, lost: 1 },
   mwm: { d: 150, phase: 'train', px: 0.354, py: -0.354, pd: 10, wall: 15, stay: 2, start: 'G' },
-  nor: { w: 50, h: 50, phase: 'test', point: 'nose', zone: 2, climb: true, stop: 0, objects: [] },
+  nor: { w: 50, h: 50, phase: 'test', point: 'nose', zone: 2, climb: true, stop: 0, mask: false, objects: [] },
   det: { thr: 40, minArea: 4, maxAreaPct: 35, clean: true, showMask: false, procW: 320 },
   trk: { minMove: 0.5, smooth: 3, minDwell: 0.2, immobSpeed: 2, countStart: false },
   ses: { duration: 300, autoStart: true, code: '' },
@@ -623,6 +657,40 @@ function buildModel() {
       inside(x, y, m) { return x >= m && x <= W - m && y >= m && y <= H - m; }
     };
   }
+  if (S.arena === 'barnes') {
+    const B = S.barnes, R = Math.max(10, +B.d || 92) / 2, N = clamp(Math.round(+B.n || 20), 4, 40), hr = Math.max(0.5, +B.hd || 5) / 2;
+    const rH = clamp(R - (+B.edge || 4.5), hr, R - hr), phase = B.phase, T = clamp(Math.round(+B.target || 0), 0, N - 1), tol = Math.max(0, +B.tol || 0);
+    const rot = (+B.rot || 0) * Math.PI / 180, step = Math.PI * 2 / N, NP = 72;
+    const circ = (cx, cy, r, n) => Array.from({ length: n }, (_, k) => [cx + r * Math.cos(k / n * Math.PI * 2), cy + r * Math.sin(k / n * Math.PI * 2)]);
+    const outline = circ(0, 0, R, NP);
+    // hole 1 points to north (−y, the K handle); numbering runs clockwise as seen from above
+    const holes = Array.from({ length: N }, (_, i) => { const a = -Math.PI / 2 + rot + i * step; return { i, a, x: rH * Math.cos(a), y: rH * Math.sin(a) }; });
+    const ta = holes[T].a;
+    const slice = (a0, a1) => { const pts = [[0, 0]]; for (let k = 0; k <= 18; k++) { const a = a0 + (a1 - a0) * k / 18; pts.push([R * Math.cos(a), R * Math.sin(a)]); } return pts; };
+    const QN = [['qT', 'Hedef çeyrek', '#3FA37C'], ['qR', 'Yan çeyrek (saat yönü)', '#6F8FBF'], ['qO', 'Karşı çeyrek', '#D9955A'], ['qL', 'Yan çeyrek (saat yönü tersi)', '#A97CC4']];
+    const zones = QN.map(([id, name, color], k) => {
+      const a0 = ta - Math.PI / 4 + k * Math.PI / 2, a1 = a0 + Math.PI / 2, am = (a0 + a1) / 2;
+      return { id, name, color, draw: [slice(a0, a1)], short: k === 0 ? 'Hedef çeyrek' : k === 2 ? 'Karşı çeyrek' : null, label: k === 0 || k === 2 ? [0.45 * R * Math.cos(am), 0.45 * R * Math.sin(am)] : null };
+    });
+    for (const h of holes) zones.push({ id: 'h' + h.i, name: 'Delik ' + (h.i + 1) + (h.i === T ? ' (hedef)' : ''), col: 'Delik ' + (h.i + 1), color: h.i === T ? '#F0A53A' : '#C8D0D7', draw: [circ(h.x, h.y, hr, 24)], label: null, hidden: h.i !== T, hole: true });
+    zones.push({ id: 'hOther', name: 'Diğer delikler', color: '#C8D0D7', draw: [], agg: true });
+    const rel = a => { let r = (a - ta + Math.PI / 4) % (Math.PI * 2); if (r < 0) r += Math.PI * 2; return Math.floor(r / (Math.PI / 2)) % 4; };
+    const tolR = R * 0.04;
+    return {
+      type: 'barnes', name: 'Barnes labirenti', phase, R, W: 2 * R, H: 2 * R, outline, bounds: [-R, -R, R, R], areaCm2: Math.PI * R * R,
+      n: N, hr, rH, holes, target: T, tolV: tol,
+      ctrl: [[0, -R], [R, 0], [0, R], [-R, 0]], ctrlLabels: ['K', 'D', 'G', 'B'], ctrlColors: [null, null, null, null],
+      zones,
+      classify(x, y, nose) {
+        const s = new Set(); if (Math.hypot(x, y) > R + tolR) return s;
+        s.add(QN[rel(Math.atan2(y, x))][0]);
+        const pt = S.barnes.point === 'nose' && nose ? nose : [x, y];
+        for (const h of holes) if (Math.hypot(pt[0] - h.x, pt[1] - h.y) <= hr + tol) { s.add('h' + h.i); if (h.i !== T) s.add('hOther'); }
+        return s;
+      },
+      inside(x, y, m) { return Math.hypot(x, y) <= R - m; }
+    };
+  }
   if (S.arena === 'mwm') {
     const R = Math.max(10, +S.mwm.d || 150) / 2, phase = S.mwm.phase, pr = Math.max(1, +S.mwm.pd || 10) / 2;
     let px = (+S.mwm.px || 0) * R, py = (+S.mwm.py || 0) * R;
@@ -636,7 +704,7 @@ function buildModel() {
     const quadOf = (x, y) => (y < 0 ? 'K' : 'G') + (x >= 0 ? 'D' : 'B');
     const tq = quadOf(px, py), oq = (tq[0] === 'K' ? 'G' : 'K') + (tq[1] === 'D' ? 'B' : 'D');
     const qcol = k => k === tq ? '#3FA37C' : k === oq ? '#D9955A' : (k === 'KB' || k === 'GD' ? '#6F8FBF' : '#A97CC4');
-    const zones = QD.map(q => ({ id: 'q' + q.k, name: q.n + ' çeyrek' + (q.k === tq ? ' (hedef)' : q.k === oq ? ' (karşı)' : ''), short: q.k + (q.k === tq ? ' hedef' : ''), color: qcol(q.k), draw: [slice(q.a0, q.a1)],
+    const zones = QD.map(q => ({ id: 'q' + q.k, col: q.n + ' çeyrek', name: q.n + ' çeyrek' + (q.k === tq ? ' (hedef)' : q.k === oq ? ' (karşı)' : ''), short: q.k + (q.k === tq ? ' hedef' : ''), color: qcol(q.k), draw: [slice(q.a0, q.a1)],
       label: [0.84 * R * Math.cos((q.a0 + q.a1) / 2), 0.84 * R * Math.sin((q.a0 + q.a1) / 2)] }));
     zones.push({ id: 'plat', name: phase === 'probe' ? 'Platform yeri' : 'Platform', color: '#F0A53A', draw: [circ(px, py, pr, 36)], label: null, dwell: 0 });
     if (wallW > 0) zones.push({ id: 'wall', name: 'Duvar kenarı', color: '#8C99A6', draw: [outline, circ(0, 0, R - wallW, NP)], evenodd: true, label: null });
@@ -788,9 +856,31 @@ function ensureProc() {
   }
   return true;
 }
+/* Object footprints (NOR) in processing pixels: objMap[i] = object index + 1 inside an object enlarged by 0.5 cm.
+   Used to (a) never take a blob that is just an object for the animal and (b) blank out objects that look like the animal. */
+function buildObjMap() {
+  const n = P.w * P.h;
+  if (!P.objMap || P.objMap.length !== n) P.objMap = new Uint8Array(n);
+  P.objMap.fill(0); P.objPx = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+  if (!G.ok || M.type !== 'nor' || !M.objs || !M.objs.length) return;
+  const g = P.maskCv.getContext('2d', { willReadFrequently: true }), sc = P.w / vw();
+  M.objs.slice(0, 8).forEach((o, k) => {
+    g.clearRect(0, 0, P.w, P.h); g.fillStyle = '#fff'; g.beginPath();
+    objPoly(o, 0.5).forEach((q, i) => { const r = applyH(G.Hm2i, q[0], q[1]); i ? g.lineTo(r[0] * sc, r[1] * sc) : g.moveTo(r[0] * sc, r[1] * sc); });
+    g.closePath(); g.fill();
+    const d = g.getImageData(0, 0, P.w, P.h).data;
+    for (let i = 0; i < n; i++) if (d[i * 4 + 3] > 127 && P.mask[i]) { P.objMap[i] = k + 1; P.objPx[k + 1]++; }
+  });
+}
+function setObjEx() {
+  if (!P.objEx) P.objEx = new Uint8Array(9);
+  P.objEx.fill(0);
+  if (M.type !== 'nor' || !M.objs) return;
+  M.objs.slice(0, 8).forEach((o, k) => { if (S.nor.mask || (sess && sess.objEx && sess.objEx.has(k))) P.objEx[k + 1] = 1; });
+}
 function buildMask() {
   P.maskDirty = false; P.mask.fill(0); P.maskCount = 0;
-  if (!G.ok) return;
+  if (!G.ok) { buildObjMap(); return; }
   const g = P.maskCv.getContext('2d', { willReadFrequently: true });
   g.clearRect(0, 0, P.w, P.h);
   const sc = P.w / vw();
@@ -799,6 +889,7 @@ function buildMask() {
   g.closePath(); g.fill();
   const d = g.getImageData(0, 0, P.w, P.h).data;
   for (let i = 0, n = P.w * P.h; i < n; i++) if (d[i * 4 + 3] > 127) { P.mask[i] = 1; P.maskCount++; }
+  buildObjMap(); setObjEx();
 }
 function blur3(s8, d8, tmp, w, h) {
   for (let y = 0; y < h; y++) { const o = y * w; for (let x = 0; x < w; x++) { const l = x > 0 ? s8[o + x - 1] : s8[o + x], r = x < w - 1 ? s8[o + x + 1] : s8[o + x]; tmp[o + x] = l + s8[o + x] + r; } }
@@ -839,27 +930,43 @@ function detect() {
   if (!G.ok || !P.maskCount) return { found: false, level: 0 };
   const s = polarity(), thr = +S.det.thr, mask = P.mask, fg = P.fg, useBg = !!P.bg, bg = P.bg;
   const level = useBg ? 0 : arenaMedian();
-  for (let i = 0; i < N; i++) { if (!mask[i]) { fg[i] = 0; continue; } fg[i] = s * (g[i] - (useBg ? bg[i] : level)) > thr ? 1 : 0; }
+  const om = P.objMap, ox = P.objEx, hasObj = M.type === 'nor' && om && om.length === N && M.objs && M.objs.length;
+  const ofg = P.objFg || (P.objFg = new Uint32Array(9)); ofg.fill(0);
+  for (let i = 0; i < N; i++) {
+    if (!mask[i]) { fg[i] = 0; continue; }
+    let v = s * (g[i] - (useBg ? bg[i] : level)) > thr ? 1 : 0;
+    if (hasObj && om[i]) { ofg[om[i]] += v; if (ox[om[i]]) v = 0; }
+    fg[i] = v;
+  }
   if (S.det.clean) { morph(fg, P.fg2, P.tmp, w, h, false); morph(P.fg2, fg, P.tmp, w, h, true); }
   const F = fg, L = P.labels; L.fill(0);
   const st = P.stack; let lab = 0; const comps = [];
   for (let i = 0; i < N; i++) {
     if (!F[i] || L[i]) continue;
-    lab++; let sp = 0, area = 0, sx = 0, sy = 0;
+    lab++; let sp = 0, area = 0, sx = 0, sy = 0, inObj = 0;
     st[sp++] = i; L[i] = lab;
     while (sp) {
       const k = st[--sp]; const x = k % w, y = (k / w) | 0;
-      area++; sx += x; sy += y;
+      area++; sx += x; sy += y; if (hasObj && om[k]) inObj++;
       if (x > 0 && F[k - 1] && !L[k - 1]) { L[k - 1] = lab; st[sp++] = k - 1; }
       if (x < w - 1 && F[k + 1] && !L[k + 1]) { L[k + 1] = lab; st[sp++] = k + 1; }
       if (y > 0 && F[k - w] && !L[k - w]) { L[k - w] = lab; st[sp++] = k - w; }
       if (y < h - 1 && F[k + w] && !L[k + w]) { L[k + w] = lab; st[sp++] = k + w; }
     }
-    comps.push({ lab, area, cx: sx / area, cy: sy / area });
+    comps.push({ lab, area, cx: sx / area, cy: sy / area, objLike: hasObj && inObj >= area * 0.85 });
   }
   const cm2PerPx = M.areaCm2 / P.maskCount;
   const minPx = (+S.det.minArea || 0) / cm2PerPx, maxPx = P.maskCount * (+S.det.maxAreaPct || 35) / 100;
-  const cand = comps.filter(c => c.area >= minPx && c.area <= maxPx).sort((a, b) => b.area - a.area);
+  let cand = comps.filter(c => c.area >= minPx && c.area <= maxPx).sort((a, b) => b.area - a.area);
+  if (hasObj) {
+    // a blob lying (almost) entirely on an object is the object, not the animal - unless the animal was just there (climbing)
+    const real = cand.filter(c => !c.objLike);
+    if (real.length) cand = real;
+    else {
+      const sc0 = w / vw(), reach = 3 / Math.sqrt(cm2PerPx);
+      cand = lastDet && lastDet.found ? cand.filter(c => Math.hypot(c.cx - lastDet.x * sc0, c.cy - lastDet.y * sc0) <= reach + Math.sqrt(c.area)) : [];
+    }
+  }
   let pick = cand[0] || null;
   if (pick && cand.length > 1 && lastDet && lastDet.found) {
     const sc = w / vw(), lx = lastDet.x * sc, ly = lastDet.y * sc;
@@ -877,13 +984,14 @@ function detect() {
   }
   const res = { found: !!pick, level, useBg, blobs: cand.length, rawBlobs: comps.length };
   if (pick) { const sc = vw() / w; res.x = (pick.cx + 0.5) * sc; res.y = (pick.cy + 0.5) * sc; res.areaCm2 = pick.area * cm2PerPx; }
-  if (pick && M.type === 'nor' && pick.area >= 12) {
+  if (pick && (M.type === 'nor' || M.type === 'barnes') && pick.area >= 12) {
     // principal axis of the blob, its two ends and the body width near each end (the head end is narrower)
-    // 1) morphological opening of this blob alone (~0.9 cm wide kernel) strips the tail, which would otherwise look like a narrow "head"
+    // 1) morphological opening of this blob alone strips the tail, which would otherwise look like a narrow "head".
+    //    The kernel scales with the animal's own size (≈ 0.18 × √area), so it works the same for a mouse in a small arena and a rat in a large one.
     const lab = pick.lab, idx = P.stack;
     let x0 = w, x1 = 0, y0 = h, y1 = 0;
     for (let i = 0; i < N; i++) if (L[i] === lab) { const x = i % w, y = (i / w) | 0; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
-    const cmPx = Math.sqrt(cm2PerPx), rad = Math.max(1, Math.round(0.45 / cmPx)), pad = rad + 1;
+    const rad = Math.max(1, Math.round(0.09 * Math.sqrt(pick.area))), pad = rad + 1;
     const lx0 = Math.max(0, x0 - pad), ly0 = Math.max(0, y0 - pad), lw = Math.min(w - 1, x1 + pad) - lx0 + 1, lh = Math.min(h - 1, y1 + pad) - ly0 + 1;
     let A1 = new Uint8Array(lw * lh), A2 = new Uint8Array(lw * lh); const T1 = new Uint8Array(lw * lh);
     for (let y = 0; y < lh; y++) for (let x = 0; x < lw; x++) A1[y * lw + x] = L[(y + ly0) * w + x + lx0] === lab ? 1 : 0;
@@ -963,10 +1071,10 @@ function updateHead(det, t) {
 let sess = null;
 function newSession() {
   const heatN = 50, [bx0, by0, bx1, by1] = M.bounds;
-  sess = { status: 'idle', elapsed: 0, lastT: null, dist: 0, anchor: null, sbuf: [], lastPos: null, nbuf: [], lastNose: null, startPos: null, pdSum: 0, pdT: 0, platWas: false, platDist: null, escape: null, escapeDist: null, immob: 0, hist: [], samples: 0, detSamples: 0, speedNow: 0,
+  sess = { status: 'idle', elapsed: 0, lastT: null, dist: 0, anchor: null, sbuf: [], lastPos: null, nbuf: [], lastNose: null, startPos: null, pdSum: 0, pdT: 0, hSeq: [], hEnt: null, lastSeen: null, primLat: null, primErr: null, primDist: null, escErr: null, escDist: null, platWas: false, platDist: null, escape: null, escapeDist: null, immob: 0, hist: [], samples: 0, detSamples: 0, speedNow: 0,
     zs: {}, log: [], path: [], heat: new Float32Array(heatN * heatN), heatN, hb: [bx0, by0, bx1, by1], startedAt: null, model: M, curZones: new Set() };
   for (const z of M.zones) sess.zs[z.id] = { init: false, inside: false, cand: false, since: 0, time: 0, entries: 0, latency: null };
-  buildZoneTable();
+  buildZoneTable(); setObjEx();
 }
 function zoneUpdate(z, raw, t, dt, dwell) {
   if (!z.init) { z.init = true; z.inside = raw; z.cand = raw; if (raw) { z.latency = t; z.enterT = t; if (S.trk.countStart) z.entries++; } return; }
@@ -988,6 +1096,44 @@ function smoothPush(buf, p, t) {
   while (buf.length > 1 && t - buf[0][2] > win - fd * 0.5) buf.shift();
   let sx = 0, sy = 0; for (const q of buf) { sx += q[0]; sy += q[1]; }
   return [sx / buf.length, sy / buf.length];
+}
+/* Barnes: hole-visit order, primary measures (first visit to the escape hole) and entry into the escape box,
+   which is seen as the animal vanishing next to the escape hole. */
+function barnesStep(det, pos, dt) {
+  const m = M, zs = sess.zs, N = m.n, T = m.target, H = m.holes[T];
+  if (!sess.hEnt) sess.hEnt = new Array(N).fill(0);
+  for (let i = 0; i < N; i++) {
+    const z = zs['h' + i];
+    if (z.entries > sess.hEnt[i]) {
+      sess.hEnt[i] = z.entries; sess.hSeq.push([i, z.enterT]);
+      if (i === T && sess.primLat == null) { sess.primLat = z.enterT; sess.primErr = sess.hSeq.filter(v => v[0] !== T).length; sess.primDist = sess.dist; }
+    }
+  }
+  if (sess.escape == null) { sess.pdSum += Math.hypot(pos[0] - H.x, pos[1] - H.y) * dt; sess.pdT += dt; }
+  if (det && det.found) { sess.lastSeen = sess.elapsed; return false; }
+  if (m.phase !== 'train' || sess.lastSeen == null || sess.escape != null) return false;
+  if (sess.elapsed - sess.lastSeen < Math.max(0.2, +S.barnes.lost || 1) - 1e-9) return false;
+  const nz = sess.lastNose, c = sess.lastPos;
+  const near = (nz && Math.hypot(nz[0] - H.x, nz[1] - H.y) <= m.hr + 3) || (c && Math.hypot(c[0] - H.x, c[1] - H.y) <= m.hr + 9);
+  if (!near) return false;
+  if (sess.primLat == null) { sess.primLat = sess.lastSeen; sess.primErr = sess.hSeq.filter(v => v[0] !== T).length; sess.primDist = sess.dist; sess.hSeq.push([T, sess.lastSeen]); }
+  sess.escape = sess.lastSeen; sess.escErr = sess.hSeq.filter(v => v[0] !== T).length; sess.escDist = sess.dist;
+  return true;
+}
+/* Search strategy from the hole-visit order up to the first escape-hole visit (automatic suggestion):
+   direct = at most 3 errors, all within 2 holes of the target; serial = ≥3 successive visits to neighbouring holes in one direction; otherwise random. */
+function barnesStrategy(seq, T, N) {
+  const ix = seq.findIndex(v => v[0] === T); if (ix < 0) return null;
+  const pre = seq.slice(0, ix).map(v => v[0]);
+  const d = i => { const k = ((i - T) % N + N) % N; return Math.min(k, N - k); };
+  if (pre.length <= 3 && pre.every(i => d(i) <= 2)) return 'Doğrudan';
+  const path = pre.concat([T]); let run = 1, best = 1, dir = 0;
+  for (let k = 1; k < path.length; k++) {
+    const st = ((path[k] - path[k - 1]) % N + N) % N, sg = st === 1 ? 1 : st === N - 1 ? -1 : 0;
+    if (sg && sg === dir) run++; else if (sg) { dir = sg; run = 2; } else { dir = 0; run = 1; }
+    best = Math.max(best, run);
+  }
+  return best >= 3 ? 'Seri' : 'Rastgele';
 }
 function stepSession(t, det) {
   let dt = sess.lastT == null ? 0 : t - sess.lastT;
@@ -1015,6 +1161,7 @@ function stepSession(t, det) {
     if (span >= 0.5) { sess.speedNow = Math.hypot(pos[0] - h0[1], pos[1] - h0[2]) / span; if (sess.speedNow < (+S.trk.immobSpeed || 0)) sess.immob += dt; }
     const set = M.classify(pos[0], pos[1], nose); sess.curZones = set;
     for (const z of M.zones) zoneUpdate(sess.zs[z.id], set.has(z.id), sess.elapsed, dt, z.dwell);
+    if (M.type === 'barnes' && barnesStep(det, pos, dt)) finish = true;
     if (M.type === 'mwm') {
       const pl = sess.zs.plat;
       if (!sess.startPos) sess.startPos = pos.slice();
@@ -1039,14 +1186,29 @@ function startSession() {
   if (M.type === 'nor' && M.phase !== 'hab') {
     if (!M.objs.length) { toast('Önce objeleri bulun ya da “Obje ekle” ile ekleyin.'); return; }
     if (M.phase === 'test' && !M.objs.some(o => o.role === 'B')) { toast('Test aşamasında hangi objenin yeni olduğunu seçin (Kurulum > Test düzeneği).'); return; }
-    if (!P.bg) toast('Uyarı: boş arena referansı yok; objeler hayvan sanılabilir.');
+    if (!P.bg && (src.kind === 'file' || !S.ses.autoStart)) toast('Uyarı: boş arena referansı yok; hayvanla aynı tonda objeler hayvan sanılabilir.');
   }
+  if (M.type === 'barnes' && !P.bg) toast('Uyarı: boş platform referansı yok; delikler hayvan sanılabilir. Hayvan yokken Algılama > Boş arenayı kaydet’e dokunun.');
   if (M.type === 'mwm' && !P.bg) toast('Uyarı: boş havuz referansı yok; su yüzeyindeki ışık yansımaları hayvan sanılabilir.');
   newSession(); sess.startedAt = new Date(); HS.nose = null; HS.ev = 0;
   sess.status = S.ses.autoStart ? 'armed' : 'running';
+  setObjEx();
+  if (M.type === 'nor' && M.phase !== 'hab' && S.ses.autoStart && ensureProc()) {
+    // Live: the objects are in their final place and the animal is not in yet, so re-record the empty arena now.
+    // Then check whether any object still shows up like an animal; if so, blank it out for this trial.
+    sess.prep = true;
+    if (src.kind !== 'file') { P.bgCap = { acc: new Float32Array(P.w * P.h), n: 0, target: 12, quiet: true }; updateBgUI(); }
+  }
   if (src.kind === 'file') { Pace.reset(+$('#rate').value || 1); vid.play().catch(() => {}); }
   Wake.on(); lockOrientation(true);
   syncUI();
+}
+function finishObjCheck() {
+  sess.prep = false; sess.objEx = new Set();
+  const bad = [];
+  (M.objs || []).slice(0, 8).forEach((o, k) => { const px = P.objPx ? P.objPx[k + 1] : 0; if (px && P.objFg && P.objFg[k + 1] / px > 0.15) { sess.objEx.add(k); bad.push(k); } });
+  setObjEx();
+  if (bad.length) toast(bad.map(k => 'Obje ' + (k + 1)).join(' ve ') + ' hayvanla aynı tonda görünüyor; alanı bu deneme için hayvan algılamasından çıkarıldı. Bu objede tırmanma ayırt edilemez.');
 }
 function pauseSession() { if (!sess || sess.status !== 'running') return; sess.status = 'paused'; sess.lastT = null; Pace.gap(); if (src.kind === 'file') vid.pause(); syncUI(); }
 function resumeSession() { if (!sess || sess.status !== 'paused') return; sess.status = 'running'; sess.lastT = null; Pace.gap(); if (src.kind === 'file') vid.play().catch(() => {}); syncUI(); }
@@ -1108,8 +1270,9 @@ function onFrame(meta) {
   const t = src.kind === 'file' ? (meta && meta.mediaTime != null ? meta.mediaTime : vid.currentTime) : performance.now() / 1000;
   if (src.kind === 'file' && sess && sess.status === 'running') Pace.frame(t);
   const det = detect(); lastDet = det;
-  if (M.type === 'nor') updateHead(det, t);
+  if (M.type === 'nor' || M.type === 'barnes') updateHead(det, t);
   if (!sess) return;
+  if (sess.status === 'armed' && sess.prep) { if (!P.bgCap) finishObjCheck(); return; }
   if (sess.status === 'armed' && det && det.found) { sess.status = 'running'; sess.lastT = t; Pace.gap(); syncUI(); }
   if (sess.status === 'running') stepSession(t, det);
 }
@@ -1159,8 +1322,13 @@ function drawStage() {
       sctx.beginPath();
       for (const poly of z.draw) { poly.forEach((p, i) => { const q = mp(p); i ? sctx.lineTo(q[0], q[1]) : sctx.moveTo(q[0], q[1]); }); sctx.closePath(); }
       const inside = sess && sess.status !== 'idle' && sess.curZones.has(z.id);
-      sctx.fillStyle = hexA(z.color, inside ? 0.34 : 0.16); sctx.fill(z.evenodd ? 'evenodd' : 'nonzero');
-      sctx.strokeStyle = hexA(z.color, 0.7); sctx.lineWidth = u; sctx.stroke();
+      if (z.hole) {   // outline only, so the real hole stays visible for alignment
+        sctx.strokeStyle = hexA(z.color, inside ? 1 : 0.85); sctx.lineWidth = (z.color === '#F0A53A' ? 2.5 : 1.2) * u; sctx.stroke();
+        if (inside) { sctx.fillStyle = hexA(z.color, 0.35); sctx.fill(); }
+      } else {
+        sctx.fillStyle = hexA(z.color, inside ? 0.34 : 0.16); sctx.fill(z.evenodd ? 'evenodd' : 'nonzero');
+        sctx.strokeStyle = hexA(z.color, 0.7); sctx.lineWidth = u; sctx.stroke();
+      }
       if (z.ring) {
         sctx.beginPath(); z.ring.forEach((p, i) => { const q = mp(p); i ? sctx.lineTo(q[0], q[1]) : sctx.moveTo(q[0], q[1]); }); sctx.closePath();
         sctx.setLineDash([5 * u, 4 * u]); sctx.strokeStyle = hexA(z.color, 0.95); sctx.lineWidth = 1.5 * u; sctx.stroke(); sctx.setLineDash([]);
@@ -1206,6 +1374,15 @@ function drawStage() {
       sctx.font = `600 ${Math.round(r * 1.0)}px Barlow, system-ui, sans-serif`; sctx.fillStyle = '#fff'; sctx.textAlign = 'center'; sctx.textBaseline = 'middle';
       sctx.fillText(M.ctrlLabels[i], p[0], p[1] + 0.5);
     });
+    if (M.type === 'barnes') {
+      sctx.font = `600 ${fs(10)}px Barlow, system-ui, sans-serif`; sctx.textAlign = 'center'; sctx.textBaseline = 'middle';
+      const rl = Math.max(M.hr + 3.5, M.rH * 0.12);
+      for (const h of M.holes) {
+        const q = applyH(G.Hm2i, (M.rH - rl) * Math.cos(h.a), (M.rH - rl) * Math.sin(h.a)), tgt = h.i === M.target;
+        sctx.lineWidth = 3 * u; sctx.strokeStyle = 'rgba(0,0,0,.6)'; sctx.strokeText(String(h.i + 1), q[0], q[1]);
+        sctx.fillStyle = tgt ? '#FFD27A' : '#fff'; sctx.fillText(String(h.i + 1), q[0], q[1]);
+      }
+    }
     if (M.type === 'mwm') {
       const q = applyH(G.Hm2i, M.plat.x, M.plat.y);
       sctx.font = `600 ${fs(11)}px Barlow, system-ui, sans-serif`; sctx.textAlign = 'center'; sctx.textBaseline = 'middle';
@@ -1226,7 +1403,7 @@ function drawStage() {
   }
   if (sess && (sess.status === 'running' || sess.status === 'armed' || sess.status === 'paused')) {
     const f14 = fs(13); sctx.font = `600 ${f14}px Barlow, system-ui, sans-serif`; sctx.textAlign = 'left'; sctx.textBaseline = 'top';
-    const txt = sess.status === 'running' ? '● KAYIT ' + fmtClock(sess.elapsed) : sess.status === 'paused' ? 'Duraklatıldı ' + fmtClock(sess.elapsed) : 'Hayvan bekleniyor';
+    const txt = sess.status === 'running' ? '● KAYIT ' + fmtClock(sess.elapsed) : sess.status === 'paused' ? 'Duraklatıldı ' + fmtClock(sess.elapsed) : sess.prep ? 'Boş arena kaydediliyor, hayvanı henüz koymayın' : 'Hayvan bekleniyor';
     const tw = sctx.measureText(txt).width;
     sctx.fillStyle = 'rgba(0,0,0,.55)'; sctx.fillRect(8 * u, 8 * u, tw + f14, f14 * 1.7);
     sctx.fillStyle = sess.status === 'running' ? '#FF6B5F' : '#F5C451'; sctx.fillText(txt, 8 * u + f14 / 2, 8 * u + f14 * 0.35);
@@ -1244,6 +1421,10 @@ function hitTest(p) {
     const pm = applyH(G.Hi2m, p[0], p[1]);
     for (let i = M.objs.length - 1; i >= 0; i--) if (pointInObj(M.objs[i], pm, 0.5)) return { type: 'objMove', i };
   }
+  if (M.type === 'barnes') {
+    const pm = applyH(G.Hi2m, p[0], p[1]);
+    for (const h of M.holes) if (Math.hypot(pm[0] - h.x, pm[1] - h.y) <= M.hr + 1.5) return { type: 'hole', i: h.i };
+  }
   if (M.type === 'mwm') {
     const pm = applyH(G.Hi2m, p[0], p[1]), q = applyH(G.Hm2i, M.plat.x, M.plat.y);
     if (Math.hypot(pm[0] - M.plat.x, pm[1] - M.plat.y) <= M.plat.r + 2 || Math.hypot(q[0] - p[0], q[1] - p[1]) <= hr) return { type: 'platMove' };
@@ -1254,6 +1435,7 @@ function hitTest(p) {
 stage.addEventListener('pointerdown', e => {
   if (isLocked() || !src.kind) return;
   const p = toVid(e), h = hitTest(p); if (!h) return;
+  if (h.type === 'hole') { S.barnes.target = h.i; barnesChanged(); toast('Hedef delik: ' + (h.i + 1)); e.preventDefault(); return; }
   drag = { ...h, start: p, orig: G.pts.map(q => q.slice()) };
   if (h.type === 'objMove' || h.type === 'objSize') { drag.startM = applyH(G.Hi2m, p[0], p[1]); drag.objOrig = { ...S.nor.objects[h.i] }; }
   if (h.type === 'platMove') { drag.startM = applyH(G.Hi2m, p[0], p[1]); drag.platOrig = { x: M.plat.x, y: M.plat.y }; }
@@ -1262,7 +1444,7 @@ stage.addEventListener('pointerdown', e => {
 stage.addEventListener('pointermove', e => {
   if (!src.kind) return;
   const p = toVid(e);
-  if (!drag) { const h = isLocked() ? null : hitTest(p); stage.style.cursor = h ? (h.type === 'pt' ? 'grab' : h.type === 'objSize' ? 'nwse-resize' : 'move') : 'default'; return; }
+  if (!drag) { const h = isLocked() ? null : hitTest(p); stage.style.cursor = h ? (h.type === 'pt' ? 'grab' : h.type === 'objSize' ? 'nwse-resize' : h.type === 'hole' ? 'pointer' : 'move') : 'default'; return; }
   if (drag.type === 'platMove') {
     const pm = applyH(G.Hi2m, p[0], p[1]), R = M.R, pr = M.plat.r;
     let x = drag.platOrig.x + pm[0] - drag.startM[0], y = drag.platOrig.y + pm[1] - drag.startM[1];
@@ -1357,8 +1539,10 @@ const nf2 = new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFr
 function buildZoneTable() {
   const tb = $('#zoneBody'); tb.innerHTML = '';
   const isNor = M.type === 'nor' && M.phase !== 'hab';
-  $('#thEnt').textContent = isNor ? 'Keşif' : 'Giriş'; $('#thLat').textContent = isNor ? 'İlk keşif' : 'İlk giriş';
+  const isBar = M.type === 'barnes';
+  $('#thEnt').textContent = isNor ? 'Keşif' : isBar ? 'Giriş/ziyaret' : 'Giriş'; $('#thLat').textContent = isNor ? 'İlk keşif' : 'İlk giriş';
   for (const z of M.zones) {
+    if (z.hidden) continue;
     const tr = document.createElement('tr'); tr.dataset.z = z.id; if (z.agg) tr.className = 'agg';
     const td0 = document.createElement('td'), sw = document.createElement('span'); sw.className = 'zsw'; sw.style.background = z.color;
     td0.append(sw, document.createTextNode(z.name)); tr.append(td0);
@@ -1381,6 +1565,35 @@ function derivedMetrics() {
       const o = sess.model.objs;
       if (o.length >= 2) { const a = zs['o' + o[0].id].time, b = zs['o' + o[1].id].time, T = a + b; out.push(['Obje 1 keşif payı %', T > 0 ? nf1.format(a / T * 100) : '–', T > 0 ? a / T * 100 : null]); }
     }
+    return out;
+  }
+  if (sess.model.type === 'barnes') {
+    const m = sess.model, zs = sess.zs, T = m.target, f1 = v => v == null ? '–' : nf1.format(v), pct = v => e > 0 ? v / e * 100 : null;
+    const done = sess.status === 'done', dur = +S.ses.duration || 0, endT = dur > 0 ? Math.min(dur, e) : e;
+    const errsAll = sess.hSeq.filter(v => v[0] !== T).length;
+    const pl = sess.primLat != null ? sess.primLat : done ? endT : null;
+    out.push(['Birincil latans (s)', pl == null ? '–' : nf1.format(pl) + (sess.primLat == null && done ? ' (bulamadı)' : ''), pl]);
+    out.push(['Birincil hata', sess.primLat != null ? String(sess.primErr) : done ? String(errsAll) : '–', sess.primLat != null ? sess.primErr : done ? errsAll : null]);
+    out.push(['Birincil yol (cm)', sess.primLat != null ? f1(sess.primDist) : '–', sess.primLat != null ? sess.primDist : null]);
+    if (m.phase === 'train') {
+      const tl = sess.escape != null ? sess.escape : done ? endT : null;
+      out.push(['Toplam latans (s)', tl == null ? '–' : nf1.format(tl) + (sess.escape == null && done ? ' (girmedi)' : ''), tl]);
+      out.push(['Kaçış kutusuna girdi', sess.escape != null ? 'Evet' : done ? 'Hayır' : '–', sess.escape != null ? 1 : done ? 0 : null]);
+      out.push(['Toplam hata', String(sess.escape != null ? sess.escErr : errsAll), sess.escape != null ? sess.escErr : errsAll]);
+      out.push(['Toplam yol (cm)', f1(sess.escape != null ? sess.escDist : sess.dist), sess.escape != null ? sess.escDist : sess.dist]);
+    } else {
+      const tv = zs['h' + T].entries, tot = sess.hSeq.length, others = tot - tv;
+      out.push(['Hedef delik ziyareti', String(tv), tv]);
+      out.push(['Diğer deliklere ort. ziyaret', nf1.format(others / Math.max(1, m.n - 1)), others / Math.max(1, m.n - 1)]);
+      out.push(['Hedef delik ziyaret oranı %', tot ? nf1.format(tv / tot * 100) : '–', tot ? tv / tot * 100 : null]);
+      out.push(['Toplam yol (cm)', f1(sess.dist), sess.dist]);
+    }
+    const strat = barnesStrategy(sess.hSeq, T, m.n);
+    out.push(['Arama stratejisi (otomatik)', strat || '–', strat]);
+    out.push(['Hedef çeyrek %', f1(pct(zs.qT.time)), pct(zs.qT.time)]);
+    const md = sess.pdT > 0 ? sess.pdSum / sess.pdT : null;
+    out.push(['Hedef deliğe ort. uzaklık (cm)', f1(md), md]);
+    out.push(['Hız (cm/s)', e > 0 ? nf1.format(sess.dist / e) : '–', e > 0 ? sess.dist / e : null]);
     return out;
   }
   if (sess.model.type === 'mwm') {
@@ -1421,7 +1634,7 @@ function derivedMetrics() {
 }
 function zoneRows() {
   const e = sess.elapsed;
-  return sess.model.zones.map(z => { const s = sess.zs[z.id]; return { id: z.id, name: z.name, color: z.color, agg: !!z.agg, time: s.time, pct: e > 0 ? s.time / e * 100 : null, entries: s.entries, lat: s.latency, inside: sess.status !== 'idle' && sess.curZones.has(z.id) }; });
+  return sess.model.zones.filter(z => !z.hidden).map(z => { const s = sess.zs[z.id]; return { id: z.id, name: z.name, color: z.color, agg: !!z.agg, time: s.time, pct: e > 0 ? s.time / e * 100 : null, entries: s.entries, lat: s.latency, inside: sess.status !== 'idle' && sess.curZones.has(z.id) }; });
 }
 function detText() {
   if (!src.kind) return 'Görüntü bekleniyor.';
@@ -1745,7 +1958,7 @@ $('#seek').addEventListener('change', () => { seeking = false; });
 /* =====================================================================
    Demo
    ===================================================================== */
-const Demo = {
+const Demo = window.Demo = {
   cv: null, g: null, timer: null, pos: null, hd: 0, mode: 'move', modeLeft: 2, last: 0, xf: null, noise: null, inC: false, W: 960, H: 720,
   fit() { const [bx0, by0, bx1, by1] = M.bounds, bw = bx1 - bx0, bh = by1 - by0; this.xf = { s: 0.8 * Math.min(this.W / bw, this.H / bh), cx: bx0 + bw / 2, cy: by0 + bh / 2, rot: 0.06 }; },
   toImg(x, y) { const { s, cx, cy, rot } = this.xf, dx = x - cx, dy = y - cy, c = Math.cos(rot), sn = Math.sin(rot); return [this.W / 2 + s * (dx * c - dy * sn), this.H / 2 + s * (dx * sn + dy * c)]; },
@@ -1754,16 +1967,52 @@ const Demo = {
     S.ptsNorm[S.arena] = M.ctrl.map(p => { const q = this.toImg(p[0], p[1]); return [q[0] / this.W, q[1] / this.H]; });
     const [bx0, by0, bx1, by1] = M.bounds;
     if (M.type === 'mwm') { this.mwReset(); return; }
+    if (M.type === 'barnes') { this.brReset(); return; }
     this.pos = [(bx0 + bx1) / 2 + (M.type !== 'epm' ? (bx1 - bx0) * 0.25 : 0), (by0 + by1) / 2];
     if (!this.free(this.pos[0], this.pos[1], this.len() / 2)) this.pos = [(bx0 + bx1) / 2, (by0 + by1) / 2];
   },
-  len() { return M.type === 'mwm' ? clamp(M.R * 0.2, 6, 18) : M.type !== 'epm' ? clamp(Math.min(M.W, M.H) * 0.17, 6, 20) : clamp(M.wd * 0.95, 6, 20); },
+  len() { return M.type === 'barnes' ? clamp(M.R * 0.2, 6, 18) : M.type === 'mwm' ? clamp(M.R * 0.2, 6, 18) : M.type !== 'epm' ? clamp(Math.min(M.W, M.H) * 0.17, 6, 20) : clamp(M.wd * 0.95, 6, 20); },
   // water maze: animal released at the chosen start point facing the pool centre
   mwReset() {
     const a = { K: -Math.PI / 2, D: 0, G: Math.PI / 2, B: Math.PI }[S.mwm.start] || Math.PI / 2, R = M.R * 0.86;
     this.pos = [R * Math.cos(a), R * Math.sin(a)]; this.hd = a + Math.PI + (Math.random() - 0.5) * 0.8;
     this.swimT = 0; this.onPlat = false; this.mwTarget = null; this.mwRetarget = 2 + Math.random() * 3;
     this.findAt = M.phase === 'visible' ? 3 + Math.random() * 5 : 7 + Math.random() * 16;
+  },
+  // Barnes: released at the centre, pokes holes (often serially), then enters the escape hole and disappears
+  brHoles() { const N = M.n, st = Math.PI * 2 / N, tr = (this.trueRot || 0) * Math.PI / 180; return Array.from({ length: N }, (_, i) => { const a = -Math.PI / 2 + tr + i * st; return { i, a, x: M.rH * Math.cos(a), y: M.rH * Math.sin(a) }; }); },
+  brReset() { this.pos = [0, 0]; this.hd = Math.random() * Math.PI * 2; this.swimT = 0; this.brGoal = null; this.brPoke = 0; this.escaped = false; this.lastHole = null; this.findAt = 8 + Math.random() * 14; },
+  brTick(dt) {
+    const live = sess && sess.status !== 'idle';
+    if (live && this.lastSess !== sess) { this.lastSess = sess; this.brReset(); }
+    if (!live || this.escaped || !this.pos || sess.status === 'paused') return;
+    this.swimT += dt;
+    const L = this.len(), N = M.n, T = M.target, sp = M.R * 0.3;
+    if (this.brPoke > 0) {
+      this.brPoke -= dt;
+      if (this.brPoke <= 0) {
+        if (this.brGoal === T && M.phase === 'train' && this.swimT >= this.findAt) { this.escaped = true; return; }
+        this.lastHole = this.brGoal; this.brGoal = null;
+      }
+      return;
+    }
+    if (this.brGoal == null) {
+      const r = Math.random();
+      if (M.phase === 'train' && this.swimT >= this.findAt) this.brGoal = T;
+      else if (M.phase === 'probe' && r < 0.45) this.brGoal = (T + [0, 0, 1, -1][Math.floor(Math.random() * 4)] + N) % N;
+      else if (this.lastHole != null && r < 0.7) this.brGoal = (this.lastHole + (Math.random() < 0.5 ? 1 : -1) + N) % N;
+      else this.brGoal = Math.floor(Math.random() * N);
+      if (M.phase === 'train' && this.swimT < this.findAt && this.brGoal === T) this.brGoal = (T + 3) % N;
+    }
+    const h = this.brHoles()[this.brGoal], reach = M.rH - M.hr - L * 0.55;     // body centre stays on the platform, nose over the hole
+    const gx = reach * Math.cos(h.a), gy = reach * Math.sin(h.a);
+    const want = Math.atan2(gy - this.pos[1], gx - this.pos[0]), dd = Math.hypot(gx - this.pos[0], gy - this.pos[1]);
+    if (dd < 1.2) { this.hd = h.a; this.brPoke = 0.6 + Math.random() * 0.8; return; }
+    const diff = Math.atan2(Math.sin(want - this.hd), Math.cos(want - this.hd));
+    this.hd += clamp(diff, -3.5 * dt, 3.5 * dt);
+    const stepL = Math.min(sp * dt, dd);
+    const nx = this.pos[0] + Math.cos(this.hd) * stepL, ny = this.pos[1] + Math.sin(this.hd) * stepL;
+    if (M.inside(nx, ny, L * 0.3)) this.pos = [nx, ny]; else this.hd = want;
   },
   mwTick(dt) {
     const live = sess && sess.status !== 'idle';
@@ -1797,8 +2046,8 @@ const Demo = {
   // the demo's own "real" objects (what auto-detection should find)
   objs() {
     if (M.type !== 'nor' || M.phase === 'hab') return [];
-    const W = M.W, H = M.H, s = Math.min(W, H);
-    return [{ shape: 'circle', x: W * 0.3, y: H * 0.32, r: s * 0.08, col: '#3E8FB0' }, { shape: 'rect', x: W * 0.7, y: H * 0.68, w: s * 0.13, h: s * 0.13, col: '#C8553D' }];
+    const W = M.W, H = M.H, s = Math.min(W, H) * (this.objScale || 1), [dx, dy] = this.objShift || [0, 0];
+    return [{ shape: 'circle', x: W * 0.3 + dx, y: H * 0.32 + dy, r: s * 0.08, col: '#3E8FB0' }, { shape: 'rect', x: W * 0.7 + dx, y: H * 0.68 + dy, w: s * 0.13, h: s * 0.13, col: '#C8553D' }];
   },
   free(x, y, m) { return M.inside(x, y, m) && this.objs().every(o => !pointInObj(o, [x, y], m * 0.9)); },
   start() {
@@ -1816,7 +2065,13 @@ const Demo = {
   tick() {
     const now = performance.now(), dt = Math.min(0.1, (now - this.last) / 1000); this.last = now;
     const L = this.len(), m = L * 0.35;
+    if (M.type === 'nor' && sess && sess.status === 'running' && this.pos) {
+      if (this.truthSess !== sess) { this.truthSess = sess; this.truth = [0, 0]; }
+      const nz = [this.pos[0] + Math.cos(this.hd) * L * 0.62, this.pos[1] + Math.sin(this.hd) * L * 0.62], zd = Math.max(0, +S.nor.zone || 0);
+      this.objs().forEach((o, k) => { if (pointInObj(o, nz, zd) && !pointInObj(o, this.pos, 0)) this.truth[k] += dt; });
+    }
     if (M.type === 'mwm') { this.mwTick(dt); this.draw(L); return; }
+    if (M.type === 'barnes') { this.brTick(dt); this.draw(L); return; }
     this.modeLeft -= dt;
     if (this.modeLeft <= 0) { this.mode = this.mode === 'move' ? (Math.random() < 0.35 ? 'still' : 'move') : 'move'; this.modeLeft = this.mode === 'move' ? 1 + Math.random() * 3.5 : 0.6 + Math.random() * 2.2; }
     if (this.mode === 'move' && this.pos && M.type === 'epm') {
@@ -1852,7 +2107,11 @@ const Demo = {
     const poly = pts => { g.beginPath(); pts.forEach((p, i) => { const q = this.toImg(p[0], p[1]); i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }); g.closePath(); };
     poly(M.outline); g.fillStyle = dark ? '#24282C' : '#DCD9D2'; g.fill();
     g.lineWidth = 6; g.strokeStyle = dark ? '#3A3F44' : '#B9B6AE';
-    if (M.type === 'mwm') {
+    if (M.type === 'barnes') {
+      poly(M.outline); g.fillStyle = dark ? '#2A2F34' : '#E2E2DE'; g.fill(); g.lineWidth = 3; g.strokeStyle = dark ? '#3A3F44' : '#B9B6AE'; g.stroke();
+      for (const h of this.brHoles()) { poly(Array.from({ length: 24 }, (_, k) => [h.x + M.hr * Math.cos(k / 24 * Math.PI * 2), h.y + M.hr * Math.sin(k / 24 * Math.PI * 2)])); g.fillStyle = '#0B0C0D'; g.fill(); }
+    }
+    else if (M.type === 'mwm') {
       poly(M.outline); g.fillStyle = dark ? '#1C2328' : '#D7DCDD'; g.fill();
       g.lineWidth = 14; g.strokeStyle = '#8D959C'; g.stroke();
       const P = M.plat, pts = Array.from({ length: 36 }, (_, k) => [P.x + P.r * Math.cos(k / 36 * Math.PI * 2), P.y + P.r * Math.sin(k / 36 * Math.PI * 2)]);
@@ -1868,7 +2127,7 @@ const Demo = {
         const pts = objPoly(o);
         g.beginPath(); pts.forEach((p, i) => { const q = this.toImg(p[0] + 0.6, p[1] + 0.8); i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }); g.closePath();
         g.fillStyle = 'rgba(0,0,0,0.35)'; g.fill();          // soft shadow
-        poly(pts); g.fillStyle = o.col; g.fill(); g.lineWidth = 2; g.strokeStyle = 'rgba(0,0,0,.35)'; g.stroke();
+        poly(pts); g.fillStyle = this.objTint || o.col; g.fill(); g.lineWidth = 2; g.strokeStyle = 'rgba(0,0,0,.35)'; g.stroke();
         g.lineWidth = 6; g.strokeStyle = dark ? '#3A3F44' : '#B9B6AE';
       }
     }
@@ -1876,7 +2135,7 @@ const Demo = {
       const h = M.wd / 2, R = M.R;
       [[[-h, -R], [-h, -h]], [[h, -R], [h, -h]], [[-h, h], [-h, R]], [[h, h], [h, R]], [[-h, -R], [h, -R]], [[-h, R], [h, R]]].forEach(([a, b]) => { const p = this.toImg(a[0], a[1]), q = this.toImg(b[0], b[1]); g.beginPath(); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]); g.stroke(); });
     }
-    const hideAnimal = ((M.type === 'nor' && M.phase !== 'hab') || M.type === 'mwm') && !(sess && sess.status !== 'idle');
+    const hideAnimal = (((M.type === 'nor' && M.phase !== 'hab') || M.type === 'mwm' || M.type === 'barnes') && !(sess && sess.status !== 'idle' && !sess.prep)) || (M.type === 'barnes' && this.escaped);
     if (this.pos && !hideAnimal) {
       const [x, y] = this.pos, c = Math.cos(this.hd), s = Math.sin(this.hd);
       const body = S.animal === 'albino' ? '#F2EDE4' : '#161616', tail = S.animal === 'albino' ? '#E5BDB6' : '#2A2626';
@@ -2035,7 +2294,7 @@ const Mirror = {
       det: sess && sess.samples ? sess.detSamples / sess.samples * 100 : null,
       zones: sess ? zoneRows() : [], derived: derivedMetrics().map(d => [d[0], d[1]]),
       entLabel: $('#thEnt').textContent, latLabel: $('#thLat').textContent,
-      test: M.name + (M.type === 'nor' ? ' (' + { hab: 'alışma', train: 'tanışma', test: 'test' }[M.phase] + ')' : M.type === 'mwm' ? ' (' + { train: 'öğrenme', probe: 'prob', visible: 'görünür platform' }[M.phase] + ')' : ''), animal: S.animal === 'albino' ? 'Albino' : 'Siyah', code: S.ses.code || '', control: !!S.mirror.control,
+      test: M.name + (M.type === 'barnes' ? ' (' + (M.phase === 'probe' ? 'prob' : 'öğrenme') + ', hedef delik ' + (M.target + 1) + ')' : M.type === 'nor' ? ' (' + { hab: 'alışma', train: 'tanışma', test: 'test' }[M.phase] + ')' : M.type === 'mwm' ? ' (' + { train: 'öğrenme', probe: 'prob', visible: 'görünür platform' }[M.phase] + ')' : ''), animal: S.animal === 'albino' ? 'Albino' : 'Siyah', code: S.ses.code || '', control: !!S.mirror.control,
       source: src.kind, detText: detText()
     };
   },
@@ -2083,8 +2342,10 @@ function initControls() {
   $('#ofW').value = S.of.w; $('#ofH').value = S.of.h; $('#ofC').value = S.of.centerPct; $('#ofCo').textContent = '%' + S.of.centerPct;
   $('#epmA').value = S.epm.arm; $('#epmW').value = S.epm.width;
   $('#norW').value = S.nor.w; $('#norH').value = S.nor.h; setRadio('norPhase', S.nor.phase);
+  $('#barD').value = S.barnes.d; $('#barN').value = S.barnes.n; $('#barH').value = S.barnes.hd; $('#barE').value = S.barnes.edge; setRadio('barPhase', S.barnes.phase);
+  $('#barPoint').value = S.barnes.point; $('#barTol').value = S.barnes.tol; $('#barLost').value = S.barnes.lost;
   $('#mwmD').value = S.mwm.d; $('#mwmP').value = S.mwm.pd; setRadio('mwmPhase', S.mwm.phase); $('#mwmStart').value = S.mwm.start; $('#mwmStay').value = S.mwm.stay; $('#mwmWall').value = S.mwm.wall;
-  $('#norPoint').value = S.nor.point; $('#norZone').value = S.nor.zone; $('#norClimb').checked = S.nor.climb; $('#norStop').value = S.nor.stop;
+  $('#norPoint').value = S.nor.point; $('#norZone').value = S.nor.zone; $('#norClimb').checked = S.nor.climb; $('#norMask').checked = S.nor.mask; $('#norStop').value = S.nor.stop;
   $('#thr').value = S.det.thr; $('#thrO').textContent = S.det.thr;
   $('#minArea').value = S.det.minArea; $('#maxArea').value = S.det.maxAreaPct;
   $('#clean').checked = S.det.clean; $('#showMask').checked = S.det.showMask;
@@ -2099,10 +2360,46 @@ function mwmInfo() {
   const m = M.type === 'mwm' ? M : null; if (!m) return;
   $('#mwmInfo').textContent = 'Platform ' + m.quadName[m.tq].toLowerCase() + ' çeyrekte, havuz merkezinden ' + nf1.format(Math.hypot(m.plat.x, m.plat.y)) + ' cm uzakta. Karşı çeyrek: ' + m.quadName[m.oq].toLowerCase() + '.';
 }
+function barnesInfo() {
+  if (S.arena !== 'barnes' || M.type !== 'barnes') return;
+  const sel = $('#barT');
+  if (sel.options.length !== M.n) { sel.innerHTML = ''; for (let i = 0; i < M.n; i++) { const o = document.createElement('option'); o.value = i; o.textContent = 'Delik ' + (i + 1); sel.append(o); } }
+  sel.value = String(M.target);
+  const lim = Math.round(180 / M.n * 4) / 4, rr = $('#barRot'); rr.min = -lim; rr.max = lim; rr.value = S.barnes.rot; $('#barRotO').textContent = nf1.format(+S.barnes.rot) + '°';
+  const sp = 2 * Math.PI * M.rH / M.n;
+  $('#barInfo').textContent = 'Hedef delik ' + (M.target + 1) + '. Delik merkezleri arası ' + nf1.format(sp) + ' cm.' + (sp - 2 * M.hr < 2 * M.tolV + 1 ? ' Ziyaret mesafesi delikler arası boşluğa göre büyük; komşu delikler karışabilir.' : '');
+}
+function barnesChanged() { M = buildModel(); newSession(); syncUI(); updateResults(); saveSettings(); barnesInfo(); previewDirty = true; }
+function barnesAutoAlign() {
+  if (!src.kind || !vw() || !ensureProc() || !G.ok || M.type !== 'barnes') { toast('Önce görüntüyü açın ve platformun K, D, G, B noktalarını yerleştirin.'); return; }
+  const saved = S.det.showMask; S.det.showMask = false; detect(); S.det.showMask = saved;
+  const g = P.blur, w = P.w, h = P.h, sc = w / vw(), B = S.barnes, N = M.n, base = -Math.PI / 2;
+  const sample = (x, y, r) => { let s = 0, n = 0; for (const [dx, dy] of [[0, 0], [r, 0], [-r, 0], [0, r], [0, -r]]) { const q = applyH(G.Hm2i, x + dx, y + dy), px = Math.round(q[0] * sc), py = Math.round(q[1] * sc); if (px >= 0 && py >= 0 && px < w && py < h) { s += g[py * w + px]; n++; } } return n ? s / n : 0; };
+  const lim = 180 / N; let best = 0, bestScore = -1;
+  for (let d = -lim; d <= lim + 1e-9; d += 0.25) {
+    let hs = 0, bs = 0;
+    for (let i = 0; i < N; i++) {
+      const a = base + (d * Math.PI / 180) + i * Math.PI * 2 / N, ab = a + Math.PI / N;
+      hs += sample(M.rH * Math.cos(a), M.rH * Math.sin(a), M.hr * 0.45);
+      bs += sample(M.rH * Math.cos(ab), M.rH * Math.sin(ab), M.hr * 0.45);
+    }
+    const sc2 = (bs - hs) / N;      // holes look darker than the platform; the sign avoids locking onto the gaps between holes
+    if (sc2 > bestScore) { bestScore = sc2; best = d; }
+  }
+  if (bestScore < 12) { toast('Delikler görüntüde ayırt edilemedi. Halkayı kaydırıcıyla elle döndürün.'); return; }
+  B.rot = Math.round(best * 4) / 4; barnesChanged(); toast('Delikler hizalandı (' + nf1.format(B.rot) + '°). Görüntüde kontrol edin.');
+}
+$('#barAlign').addEventListener('click', barnesAutoAlign);
 function mwmChanged() { M = buildModel(); newSession(); syncUI(); updateResults(); saveSettings(); mwmInfo(); previewDirty = true; }
 function arenaFieldsVisible() {
   $('#ofFields').hidden = S.arena !== 'of'; $('#epmFields').hidden = S.arena !== 'epm'; $('#norFields').hidden = S.arena !== 'nor'; $('#mwmFields').hidden = S.arena !== 'mwm';
   $('#mwmStayRow').hidden = S.mwm.phase === 'probe';
+  $('#barFields').hidden = S.arena !== 'barnes'; $('#barLostRow').hidden = S.barnes.phase === 'probe';
+  $('#barPhaseHint').textContent = {
+    train: 'Öğrenme: hedef deliğin altında kaçış kutusu vardır. Hayvan hedef deliğin yanında görüntüden kaybolduğunda kutuya girmiş sayılır ve deneme biter. Birincil/toplam latans, hata, yol ve arama stratejisi hesaplanır.',
+    probe: 'Prob testi: kaçış kutusu çıkarılmıştır. Hedef deliğe ve diğer deliklere ziyaret sayısı, hedef çeyrekte geçen süre ve birincil latans ölçülür.'
+  }[S.barnes.phase] || '';
+  barnesInfo();
   $('#mwmPhaseHint').textContent = {
     train: 'Öğrenme: platform suyun altındadır. Hayvan platforma çıkıp “platformda kalma” süresi kadar kaldığında deneme kendiliğinden biter; kaçış latansı, yol uzunluğu ve yol verimliliği hesaplanır.',
     probe: 'Prob testi: platform çıkarılmıştır. Hedef çeyrekte geçen süre, platform yerinden geçiş sayısı ve platform yerine ortalama uzaklık ölçülür.',
@@ -2145,7 +2442,7 @@ function renderObjList() {
   });
 }
 function objectsChanged() {
-  M = buildModel(); newSession(); syncUI(); updateResults(); renderObjList(); saveSettings(); previewDirty = true;
+  M = buildModel(); P.maskDirty = true; newSession(); syncUI(); updateResults(); renderObjList(); saveSettings(); previewDirty = true;
 }
 function nextObjId() { return (S.nor.objects || []).reduce((m, o) => Math.max(m, o.id || 0), 0) + 1; }
 function autoFindObjects() {
@@ -2212,14 +2509,16 @@ $('#objAdd').addEventListener('click', () => {
 $$('input[name=norPhase]').forEach(r => r.addEventListener('change', e => { S.nor.phase = e.target.value; arenaFieldsVisible(); modelChanged(); }));
 $('#norPoint').addEventListener('change', e => { S.nor.point = e.target.value; objectsChanged(); });
 $('#norClimb').addEventListener('change', e => { S.nor.climb = e.target.checked; objectsChanged(); });
+$('#norMask').addEventListener('change', e => { S.nor.mask = e.target.checked; saveSettings(); setObjEx(); previewDirty = true; });
 function modelChanged() {
-  M = buildModel(); mwmInfo();
+  M = buildModel(); mwmInfo(); barnesInfo();
   if (src.kind === 'demo') Demo.alignPts();
   updateGeometry(); newSession(); syncUI(); updateResults(); previewDirty = true; saveSettings();
 }
 $$('input[name=arena]').forEach(r => r.addEventListener('change', e => {
   S.arena = e.target.value; arenaFieldsVisible(); modelChanged();
-  if (S.arena === 'mwm' && (+S.ses.duration === 300 || +S.ses.duration === 600)) { S.ses.duration = 60; $('#dur').value = 60; saveSettings(); updateResults(); toast('Su labirenti denemesi için süre 60 saniyeye ayarlandı.'); }
+  if (S.arena === 'barnes' && [60, 300, 600].includes(+S.ses.duration)) { S.ses.duration = 180; $('#dur').value = 180; saveSettings(); updateResults(); toast('Barnes denemesi için süre 180 saniyeye ayarlandı.'); }
+  if (S.arena === 'mwm' && [180, 300, 600].includes(+S.ses.duration)) { S.ses.duration = 60; $('#dur').value = 60; saveSettings(); updateResults(); toast('Su labirenti denemesi için süre 60 saniyeye ayarlandı.'); }
 }));
 $$('input[name=animal]').forEach(r => r.addEventListener('change', e => {
   S.animal = e.target.value; S.bg = S.animal === 'albino' ? 'dark' : 'light'; setRadio('bg', S.bg);
@@ -2238,6 +2537,13 @@ function numBind(id, obj, key, after) {
 numBind('#ofW', S.of, 'w', modelChanged); numBind('#ofH', S.of, 'h', modelChanged);
 numBind('#epmA', S.epm, 'arm', modelChanged); numBind('#epmW', S.epm, 'width', modelChanged);
 numBind('#norW', S.nor, 'w', modelChanged); numBind('#norH', S.nor, 'h', modelChanged);
+numBind('#barD', S.barnes, 'd', modelChanged); numBind('#barN', S.barnes, 'n', () => { if (S.barnes.target >= S.barnes.n) S.barnes.target = 0; S.barnes.rot = 0; modelChanged(); });
+numBind('#barH', S.barnes, 'hd', barnesChanged); numBind('#barE', S.barnes, 'edge', barnesChanged); numBind('#barTol', S.barnes, 'tol', barnesChanged); numBind('#barLost', S.barnes, 'lost');
+$$('input[name=barPhase]').forEach(r => r.addEventListener('change', e => { S.barnes.phase = e.target.value; arenaFieldsVisible(); modelChanged(); }));
+$('#barT').addEventListener('change', e => { S.barnes.target = +e.target.value; barnesChanged(); });
+$('#barRot').addEventListener('input', e => { S.barnes.rot = +e.target.value; $('#barRotO').textContent = nf1.format(S.barnes.rot) + '°'; M = buildModel(); previewDirty = true; });
+$('#barRot').addEventListener('change', () => barnesChanged());
+$('#barPoint').addEventListener('change', e => { S.barnes.point = e.target.value; barnesChanged(); });
 numBind('#mwmD', S.mwm, 'd', modelChanged); numBind('#mwmP', S.mwm, 'pd', mwmChanged); numBind('#mwmWall', S.mwm, 'wall', mwmChanged); numBind('#mwmStay', S.mwm, 'stay');
 $$('input[name=mwmPhase]').forEach(r => r.addEventListener('change', e => { S.mwm.phase = e.target.value; arenaFieldsVisible(); modelChanged(); }));
 $('#mwmStart').addEventListener('change', e => { S.mwm.start = e.target.value; saveSettings(); if (src.kind === 'demo' && M.type === 'mwm' && !isLocked()) Demo.mwReset(); });
@@ -2288,7 +2594,7 @@ function baseName() {
   const c = (S.ses.code || '').trim().replace(/[^\p{L}\p{N}_.-]+/gu, '_').slice(0, 40);
   const d = sess && sess.startedAt ? sess.startedAt : new Date();
   const ds = d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '-' + String(d.getHours()).padStart(2, '0') + String(d.getMinutes()).padStart(2, '0');
-  return (c ? c + '_' : '') + ({ epm: 'EPM', nor: 'NOR', mwm: 'MWM' }[sess.model.type] || 'OF') + '_' + ds;
+  return (c ? c + '_' : '') + ({ epm: 'EPM', nor: 'NOR', mwm: 'MWM', barnes: 'BARNES' }[sess.model.type] || 'OF') + '_' + ds;
 }
 function csvNum(v, d) { if (v == null || !isFinite(v)) return ''; const s = v.toFixed(d); return S.csvTR ? s.replace('.', ',') : s; }
 function csvStr(s) { s = String(s); return /["\n;,]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
@@ -2305,6 +2611,11 @@ function summaryCSV() {
     L.push(row(['Arena (cm)', csvStr(m.W + ' x ' + m.H), 'Aşama', { hab: 'Alışma', train: 'Tanışma', test: 'Test' }[m.phase], 'Keşif ölçütü', S.nor.point === 'nose' ? 'Burun noktası' : 'Merkez noktası', 'Keşif mesafesi (cm)', csvNum(+S.nor.zone, 1)]));
     m.objs.forEach((o, i) => L.push(row([csvStr(objName(o, i)), csvStr(o.shape === 'rect' ? `Dikdörtgen ${o.w}x${o.h} cm` : `Daire r=${o.r} cm`), 'X (cm)', csvNum(o.x, 1), 'Y (cm)', csvNum(o.y, 1)])));
   }
+  else if (m.type === 'barnes') {
+    L.push(row(['Platform çapı (cm)', csvNum(2 * m.R, 1), 'Aşama', m.phase === 'probe' ? 'Prob testi' : 'Öğrenme', 'Delik sayısı', String(m.n), 'Delik çapı (cm)', csvNum(2 * m.hr, 1)]));
+    L.push(row(['Hedef delik', String(m.target + 1), 'Ziyaret ölçütü', S.barnes.point === 'nose' ? 'Burun noktası' : 'Merkez noktası', 'Ziyaret mesafesi (cm)', csvNum(+S.barnes.tol, 1), 'Halka dönüşü (derece)', csvNum(+S.barnes.rot, 2)]));
+    L.push(row(['Delik ziyaret sırası', csvStr(sess.hSeq.map(v => (v[0] + 1) + (v[0] === m.target ? '*' : '')).join(' '))]));
+  }
   else if (m.type === 'mwm') {
     L.push(row(['Havuz çapı (cm)', csvNum(2 * m.R, 1), 'Aşama', { train: 'Öğrenme', probe: 'Prob testi', visible: 'Görünür platform' }[m.phase], 'Başlangıç noktası', S.mwm.start]));
     L.push(row(['Platform çapı (cm)', csvNum(2 * m.plat.r, 1), 'Platform X (cm)', csvNum(m.plat.x, 1), 'Platform Y (cm)', csvNum(m.plat.y, 1), 'Hedef çeyrek', csvStr(m.quadName[m.tq])]));
@@ -2320,7 +2631,7 @@ function summaryCSV() {
   L.push(row(['Hareketsiz süre (s)', csvNum(sess.immob, 2), 'Hız eşiği (cm/s)', csvNum(+S.trk.immobSpeed, 1)]));
   L.push(row(['Algılanan kare %', csvNum(sess.samples ? sess.detSamples / sess.samples * 100 : 0, 1)]));
   if (src.kind === 'file' && Pace.frames) L.push(row(['Ortalama analiz hızı (x)', csvNum(Pace.speed(), 2), 'Atlanan video karesi %', csvNum(Pace.dropPct(), 2)]));
-  for (const [k, , raw] of derivedMetrics()) L.push(row([csvStr(k), csvNum(raw, 2)]));
+  for (const [k, , raw] of derivedMetrics()) L.push(row([csvStr(k), typeof raw === 'string' ? csvStr(raw) : csvNum(raw, 2)]));
   L.push('');
   L.push(row(['Bölge', 'Süre (s)', 'Süre (%)', 'Giriş sayısı', 'İlk giriş latansı (s)']));
   for (const z of m.zones) { const s = sess.zs[z.id]; L.push(row([csvStr(z.name), csvNum(s.time, 2), csvNum(e > 0 ? s.time / e * 100 : 0, 2), String(s.entries), s.latency == null ? '' : csvNum(s.latency, 2)])); }
@@ -2420,15 +2731,22 @@ function workbook() {
     ['Analiz süresi', n2(e), 's'], ['Toplam mesafe', n2(sess.dist), 'cm'], ['Ortalama hız', n2(e > 0 ? sess.dist / e : 0), 'cm/s'],
     ['Hareketsiz süre', n2(sess.immob), 's'], ['Algılanan kare', n2(sess.samples ? sess.detSamples / sess.samples * 100 : 0), '%']];
   if (src.kind === 'file' && Pace.frames) ozet.push(['Ortalama analiz hızı', n2(Pace.speed()), '×'], ['Atlanan video karesi', n2(Pace.dropPct()), '%']);
-  for (const [k, , raw] of der) ozet.push([k, n2(raw), /%/.test(k) ? '%' : '']);
+  for (const [k, , raw] of der) ozet.push([k, typeof raw === 'string' ? raw : n2(raw), /%/.test(k) ? '%' : '']);
   ozet.push([], [{ v: 'Ayarlar', s: 1 }]);
   if (m.type === 'of') ozet.push(['Arena genişliği', m.W, 'cm'], ['Arena uzunluğu', m.H, 'cm'], ['Merkez bölge kenar oranı', +S.of.centerPct, '%']);
   else if (m.type === 'nor') {
     ozet.push(['Arena genişliği', m.W, 'cm'], ['Arena uzunluğu', m.H, 'cm'], ['Aşama', { hab: 'Alışma', train: 'Tanışma', test: 'Test' }[m.phase]],
       ['Keşif ölçütü', S.nor.point === 'nose' ? 'Burun noktası' : 'Merkez noktası'], ['Keşif mesafesi', +S.nor.zone, 'cm'],
-      ['Objenin üstüne çıkma', S.nor.climb ? 'Keşif sayılmadı' : 'Keşif sayıldı'], ['Keşif süresiyle bitirme', +S.nor.stop || 'Kapalı', +S.nor.stop ? 's' : '']);
+      ['Objenin üstüne çıkma', S.nor.climb ? 'Keşif sayılmadı' : 'Keşif sayıldı'],
+      ['Algılamadan çıkarılan obje alanı', S.nor.mask ? 'Tüm objeler (ayar)' : sess.objEx && sess.objEx.size ? [...sess.objEx].map(k => 'Obje ' + (k + 1)).join(', ') + ' (hayvanla aynı tonda)' : 'Yok'], ['Keşif süresiyle bitirme', +S.nor.stop || 'Kapalı', +S.nor.stop ? 's' : '']);
     m.objs.forEach((o, i) => ozet.push([objName(o, i), (o.shape === 'rect' ? `Dikdörtgen ${o.w}×${o.h} cm` : `Daire, yarıçap ${o.r} cm`) + `, merkez (${o.x}; ${o.y}) cm`]));
   }
+  else if (m.type === 'barnes') ozet.push(['Platform çapı', 2 * m.R, 'cm'], ['Aşama', m.phase === 'probe' ? 'Prob testi' : 'Öğrenme'], ['Delik sayısı', m.n], ['Delik çapı', 2 * m.hr, 'cm'],
+    ['Delik merkezi–kenar uzaklığı', +(m.R - m.rH).toFixed(2), 'cm'], ['Hedef delik', m.target + 1], ['Delik halkası dönüşü', +S.barnes.rot, '°'],
+    ['Ziyaret ölçütü', (S.barnes.point === 'nose' ? 'Burun noktası' : 'Merkez noktası') + ' deliğin kenarından en çok ' + nf1.format(+S.barnes.tol) + ' cm uzakta'],
+    ['Hata tanımı', 'Hedef dışı her delik ziyareti (tekrarlar dahil)'], ['Kaçış kutusuna giriş', m.phase === 'probe' ? 'Yok (prob)' : 'Hayvan hedef deliğin yanında ' + nf1.format(+S.barnes.lost) + ' s görüntüden kaybolunca'],
+    ['Arama stratejisi ölçütü', 'Doğrudan: en çok 3 hata, hepsi hedefe 2 delik mesafede; Seri: tek yönde ardışık ≥3 komşu delik; diğerleri Rastgele'],
+    ['Delik ziyaret sırası (* hedef)', sess.hSeq.map(v => (v[0] + 1) + (v[0] === m.target ? '*' : '')).join(' ') || '–']);
   else if (m.type === 'mwm') ozet.push(['Havuz çapı', 2 * m.R, 'cm'], ['Aşama', { train: 'Öğrenme', probe: 'Prob testi', visible: 'Görünür platform' }[m.phase]], ['Başlangıç noktası', { K: 'Kuzey', D: 'Doğu', G: 'Güney', B: 'Batı' }[S.mwm.start]],
     ['Platform çapı', 2 * m.plat.r, 'cm'], ['Platform konumu (merkeze göre)', `X ${nf1.format(m.plat.x)}; Y ${nf1.format(m.plat.y)} cm (kuzey = −Y)`], ['Hedef çeyrek', m.quadName[m.tq]],
     ['Duvar kenarı bölgesi genişliği', m.wallW, 'cm'], ['Platformda kalma ölçütü', m.phase === 'probe' ? 'Yok (prob)' : +S.mwm.stay, m.phase === 'probe' ? '' : 's'],
@@ -2446,9 +2764,9 @@ function workbook() {
   for (const r of sess.log) kayit.push([{ v: +r[0].toFixed(3), s: 3 }, r[1] == null ? null : n2(r[1]), r[2] == null ? null : n2(r[2]), r[3], n2(r[4]), r[5]].concat(m.type === 'nor' ? [r[6] == null ? null : n2(r[6]), r[7] == null ? null : n2(r[7])] : []));
   // Tek satır (one row per animal, for pooling group data)
   const hdr = ['Hayvan kodu', 'Test', 'Tarih', 'Süre (s)', 'Mesafe (cm)', 'Ort. hız (cm/s)', 'Hareketsiz (s)', 'Algılama (%)'];
-  const val = [S.ses.code || '', m.type === 'mwm' ? 'MWM-' + { train: 'Öğrenme', probe: 'Prob testi', visible: 'Görünür platform' }[m.phase].toLowerCase() : m.type === 'epm' ? 'EPM' : m.type === 'nor' ? 'NOR-' + { hab: 'alışma', train: 'tanışma', test: 'test' }[m.phase] : 'Açık alan', sess.startedAt ? sess.startedAt.toLocaleString('tr-TR') : '', n2(e), n2(sess.dist), n2(e > 0 ? sess.dist / e : 0), n2(sess.immob), n2(sess.samples ? sess.detSamples / sess.samples * 100 : 0)];
-  for (const [k, , raw] of der) { hdr.push(k); val.push(n2(raw)); }
-  for (const { z, s } of zoneStats) { hdr.push(z.name + (isNor ? ' keşif (s)' : ' süre (s)'), z.name + (isNor ? ' keşif sayısı' : ' giriş'), z.name + ' latans (s)'); val.push(n2(s.time), s.entries, s.latency == null ? null : n2(s.latency)); }
+  const val = [S.ses.code || '', m.type === 'barnes' ? 'Barnes-' + (m.phase === 'probe' ? 'prob' : 'öğrenme') : m.type === 'mwm' ? 'MWM-' + { train: 'Öğrenme', probe: 'Prob testi', visible: 'Görünür platform' }[m.phase].toLowerCase() : m.type === 'epm' ? 'EPM' : m.type === 'nor' ? 'NOR-' + { hab: 'alışma', train: 'tanışma', test: 'test' }[m.phase] : 'Açık alan', sess.startedAt ? sess.startedAt.toLocaleString('tr-TR') : '', n2(e), n2(sess.dist), n2(e > 0 ? sess.dist / e : 0), n2(sess.immob), n2(sess.samples ? sess.detSamples / sess.samples * 100 : 0)];
+  for (const [k, , raw] of der) { hdr.push(k); val.push(typeof raw === 'string' ? raw : n2(raw)); }
+  for (const { z, s } of zoneStats) { const zc = z.col || z.name; hdr.push(zc + (isNor ? ' keşif (s)' : ' süre (s)'), zc + (isNor ? ' keşif sayısı' : z.hole ? ' ziyaret' : ' giriş'), zc + ' latans (s)'); val.push(n2(s.time), s.entries, s.latency == null ? null : n2(s.latency)); }
   return Xlsx.build([
     { name: 'Özet', rows: ozet, widths: [30, 24, 8] },
     { name: 'Bölgeler', rows: bolge, widths: [22, 12, 12, 14, 20], freeze: true },
@@ -2475,7 +2793,7 @@ if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListen
 if (!SINGLE_FILE && 'serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
 
 initControls(); newSession(); syncUI(); updateResults();
-window.__wt = { Mirror, pace: () => ({ frames: Pace.frames, drops: Pace.drops, speed: Pace.speed(), fd: Pace.fd, rate: Pace.rate, samples: sess && sess.samples }), state: () => Mirror.state(), det: () => lastDet, objs: () => S.nor.objects, objScreen: () => { const r = stage.getBoundingClientRect(), k = r.width / stage.width; return (M.objs || []).map(o => { const c = applyH(G.Hm2i, o.x, o.y), hnd = applyH(G.Hm2i, ...objHandle(o)); return { c: [r.left + c[0] * k, r.top + c[1] * k], h: [r.left + hnd[0] * k, r.top + hnd[1] * k] }; }); }, demoNose: () => { if (!Demo.pos || !Demo.xf) return null; const L = Demo.len(); const q = Demo.toImg(Demo.pos[0] + Math.cos(Demo.hd) * L * 0.6, Demo.pos[1] + Math.sin(Demo.hd) * L * 0.6); return [q[0] * vw() / Demo.W, q[1] * vh() / Demo.H]; }, handles: () => { if (!G.ok) return []; const r = stage.getBoundingClientRect(); return G.pts.map(p => [r.left + p[0] * r.width / stage.width, r.top + p[1] * r.height / stage.height]); } };   // for diagnostics
+window.__wt = { alignDemo: () => { Demo.fit(); S.ptsNorm[S.arena] = M.ctrl.map(p => { const q = Demo.toImg(p[0], p[1]); return [q[0] / Demo.W, q[1] / Demo.H]; }); updateGeometry(); previewDirty = true; }, setDemoRot: v => { Demo.trueRot = v; }, setDemoObj: (tint, shift, scale) => { Demo.objTint = tint; Demo.objShift = shift; Demo.objScale = scale || 1; }, truth: () => Demo.truth, noseCmp: () => { if (!sess || sess.status !== 'running' || !Demo.pos) return null; const L = Demo.len(), tn = [Demo.pos[0] + Math.cos(Demo.hd) * L * 0.62, Demo.pos[1] + Math.sin(Demo.hd) * L * 0.62]; return { tn, an: sess.lastNose, tp: Demo.pos, ap: sess.lastPos, L, still: Demo.mode === 'still', zones: [...sess.curZones] }; }, zoneTimes: () => sess && M.objs ? M.objs.map(o => sess.zs['o' + o.id].time) : null, sess: () => sess && { status: sess.status, elapsed: sess.elapsed, objEx: sess.objEx ? [...sess.objEx] : [] }, Mirror, pace: () => ({ frames: Pace.frames, drops: Pace.drops, speed: Pace.speed(), fd: Pace.fd, rate: Pace.rate, samples: sess && sess.samples }), state: () => Mirror.state(), det: () => lastDet, objs: () => S.nor.objects, objScreen: () => { const r = stage.getBoundingClientRect(), k = r.width / stage.width; return (M.objs || []).map(o => { const c = applyH(G.Hm2i, o.x, o.y), hnd = applyH(G.Hm2i, ...objHandle(o)); return { c: [r.left + c[0] * k, r.top + c[1] * k], h: [r.left + hnd[0] * k, r.top + hnd[1] * k] }; }); }, demoNose: () => { if (!Demo.pos || !Demo.xf) return null; const L = Demo.len(); const q = Demo.toImg(Demo.pos[0] + Math.cos(Demo.hd) * L * 0.6, Demo.pos[1] + Math.sin(Demo.hd) * L * 0.6); return [q[0] * vw() / Demo.W, q[1] * vh() / Demo.H]; }, handles: () => { if (!G.ok) return []; const r = stage.getBoundingClientRect(); return G.pts.map(p => [r.left + p[0] * r.width / stage.width, r.top + p[1] * r.height / stage.height]); } };   // for diagnostics
 })();
 </script>
 </body>
