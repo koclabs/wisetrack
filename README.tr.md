@@ -2,6 +2,8 @@
 
 [English](README.md) · **Türkçe** · [Español](README.es.md) · [العربية](README.ar.md) · [Русский](README.ru.md) · [中文](README.zh.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
 
+**▶ Uygulamayı açın: [koclabs.github.io/wisetrack](https://koclabs.github.io/wisetrack/)** — telefon, tablet ve bilgisayarda tarayıcıda çalışır; kurulum gerekmez. Telefonda ana ekrana ekleyin (bölüm 2). Bölüm 1 yalnızca kendi kopyanızı yayınlamak isterseniz gereklidir.
+
 Bu klasör, WiseTrack'in telefonda uygulama gibi çalışan web sürümüdür (PWA). Aynı dosyalar iPhone'da, Android'de, tablette ve bilgisayarda çalışır.
 
 | Dosya | Görevi |

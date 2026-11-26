@@ -2,6 +2,8 @@
 
 **English** · [Türkçe](README.tr.md) · [Español](README.es.md) · [العربية](README.ar.md) · [Русский](README.ru.md) · [中文](README.zh.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
 
+**▶ Open the app: [koclabs.github.io/wisetrack](https://koclabs.github.io/wisetrack/)** — runs in the browser on phones, tablets and computers; nothing to install. On a phone, add it to the home screen ([section 2](#2-installing-on-the-phone)). Section 1 is only needed if you want to host your own copy.
+
 WiseTrack is browser-based rodent behaviour tracking software. This folder is the web version that runs like an app on a phone (PWA). The same files run on iPhone, Android, tablets and computers.
 
 | File | Purpose |

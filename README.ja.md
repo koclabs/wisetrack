@@ -2,6 +2,8 @@
 
 [English](README.md) · [Türkçe](README.tr.md) · [Español](README.es.md) · [العربية](README.ar.md) · [Русский](README.ru.md) · [中文](README.zh.md) · **日本語** · [한국어](README.ko.md)
 
+**▶ アプリを開く：[koclabs.github.io/wisetrack](https://koclabs.github.io/wisetrack/)** — スマートフォン、タブレット、パソコンのブラウザで動作し、インストールは不要です。スマートフォンではホーム画面に追加してください（第 2 節）。第 1 節は自分でコピーを公開したい場合にのみ必要です。
+
 WiseTrack は、ブラウザーで動作するげっ歯類の行動追跡ソフトウェアです。このフォルダーは、スマートフォン上でアプリのように動作するウェブ版（PWA）です。同じファイルが iPhone、Android、タブレット、パソコンで動作します。
 
 | ファイル | 役割 |

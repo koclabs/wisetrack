@@ -2,6 +2,8 @@
 
 [English](README.md) · [Türkçe](README.tr.md) · [Español](README.es.md) · [العربية](README.ar.md) · [Русский](README.ru.md) · **中文** · [日本語](README.ja.md) · [한국어](README.ko.md)
 
+**▶ 打开应用：[koclabs.github.io/wisetrack](https://koclabs.github.io/wisetrack/)** — 在手机、平板和电脑的浏览器中运行，无需安装。在手机上请将其添加到主屏幕（第 2 节）。只有在想自行托管副本时才需要第 1 节。
+
 WiseTrack 是一款在浏览器中运行的啮齿类动物行为跟踪软件。本文件夹是可在手机上像应用一样运行的网页版（PWA）。同一套文件可在 iPhone、Android、平板和电脑上运行。
 
 | 文件 | 用途 |

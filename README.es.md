@@ -2,6 +2,8 @@
 
 [English](README.md) · [Türkçe](README.tr.md) · **Español** · [العربية](README.ar.md) · [Русский](README.ru.md) · [中文](README.zh.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
 
+**▶ Abrir la aplicación: [koclabs.github.io/wisetrack](https://koclabs.github.io/wisetrack/)** — funciona en el navegador de teléfonos, tabletas y ordenadores; no hay que instalar nada. En el teléfono, añádala a la pantalla de inicio (sección 2). La sección 1 solo es necesaria si desea alojar su propia copia.
+
 WiseTrack es un software de seguimiento del comportamiento de roedores que funciona en el navegador. Esta carpeta es la versión web que funciona como una aplicación en el teléfono (PWA). Los mismos archivos funcionan en iPhone, Android, tabletas y ordenadores.
 
 | Archivo | Función |

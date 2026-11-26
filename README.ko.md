@@ -2,6 +2,8 @@
 
 [English](README.md) · [Türkçe](README.tr.md) · [Español](README.es.md) · [العربية](README.ar.md) · [Русский](README.ru.md) · [中文](README.zh.md) · [日本語](README.ja.md) · **한국어**
 
+**▶ 앱 열기: [koclabs.github.io/wisetrack](https://koclabs.github.io/wisetrack/)** — 휴대폰, 태블릿, 컴퓨터의 브라우저에서 실행되며 설치가 필요 없습니다. 휴대폰에서는 홈 화면에 추가하세요(2절). 1절은 직접 사본을 호스팅하려는 경우에만 필요합니다.
+
 WiseTrack은 브라우저에서 실행되는 설치류 행동 추적 소프트웨어입니다. 이 폴더는 휴대폰에서 앱처럼 실행되는 웹 버전(PWA)입니다. 같은 파일이 iPhone, Android, 태블릿, 컴퓨터에서 작동합니다.
 
 | 파일 | 역할 |
