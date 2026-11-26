@@ -2,6 +2,18 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
+<script>
+/* language: ?lang= > saved choice > browser language > English. Turkish needs no dictionary. */
+(function () {
+  var L = ['tr', 'en', 'es', 'ar', 'ru', 'zh', 'ja', 'ko'], l = null, i, n, c;
+  try { l = localStorage.getItem('wisetrack.lang'); } catch (e) {}
+  try { c = new URLSearchParams(location.search).get('lang'); if (c && L.indexOf(c) >= 0) l = c; } catch (e) {}
+  if (!l || L.indexOf(l) < 0) { l = null; n = navigator.languages || [navigator.language || '']; for (i = 0; i < n.length && !l; i++) { c = String(n[i]).slice(0, 2).toLowerCase(); if (L.indexOf(c) >= 0) l = c; } }
+  l = l || 'en';
+  window.WT_LANG = l; document.documentElement.lang = l; document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
+  if (l !== 'tr' && !window.WT_I18N_ALL) document.write('<script src="i18n/' + l + '.js"><\/script>');
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>WiseTrack İzleme</title>
 <meta name="theme-color" content="#141A20">
@@ -156,9 +168,52 @@ tr.inside td:first-child{color:var(--accent);font-weight:600}
 <script>
 (() => {
 'use strict';
+/* =====================================================================
+   Languages. The interface is written in Turkish; TX() looks each Turkish string up in the chosen language's
+   dictionary (i18n/<code>.js) and falls back to Turkish. The language is fixed for a page load: changing it reloads.
+   ===================================================================== */
+const LANGS = { tr: 'Türkçe', en: 'English', es: 'Español', ar: 'العربية', ru: 'Русский', zh: '中文', ja: '日本語', ko: '한국어' };
+const LANG = window.WT_LANG && LANGS[window.WT_LANG] ? window.WT_LANG : 'tr';
+const LOCALE = { tr: 'tr-TR', en: 'en-GB', es: 'es-ES', ar: 'ar-u-nu-latn', ru: 'ru-RU', zh: 'zh-CN', ja: 'ja-JP', ko: 'ko-KR' }[LANG];
+const I18N_MAP = new Map(Object.entries((LANG !== 'tr' && (window.WT_I18N_ALL ? window.WT_I18N_ALL[LANG] : window.WT_I18N_DICT)) || {}));
+function TX(s) {
+  if (!I18N_MAP.size || typeof s !== 'string') return s;
+  let h = I18N_MAP.get(s); if (h !== undefined) return h;
+  const m = /^(\s*)([\s\S]*?)(\s*)$/.exec(s);
+  if (m[2] && m[2] !== s) { h = I18N_MAP.get(m[2]); if (h !== undefined) return m[1] + h + m[3]; }
+  return s;
+}
+function TXF(s, ...a) { return TX(s).replace(/\{(\d)\}/g, (_, i) => a[+i] ?? ''); }
+const I18N_INLINE = new Set(['B', 'I', 'STRONG', 'EM', 'SMALL', 'SPAN', 'A', 'BR', 'KBD', 'CODE', 'SUP', 'SUB', 'U', 'MARK', 'ABBR']);
+const i18nNorm = t => t.replace(/\s+/g, ' ').trim();
+const I18N_HAS_WORD = /[A-Za-zÀ-ɏ]{2}/;
+function i18nDom(root, collect) {
+  const out = [];
+  const tx = v => { if (collect) { out.push(v); return undefined; } return I18N_MAP.get(v); };
+  const visit = el => {
+    const tag = el.tagName;
+    if (tag === 'SCRIPT' || tag === 'STYLE' || el.hasAttribute('data-no-i18n')) return;
+    for (const a of ['title', 'aria-label', 'placeholder', 'alt']) if (el.hasAttribute(a)) { const v = i18nNorm(el.getAttribute(a)); if (I18N_HAS_WORD.test(v)) { const t = tx(v); if (t !== undefined) el.setAttribute(a, t); } }
+    if (tag === 'svg' || tag === 'CANVAS' || tag === 'VIDEO') return;
+    // an element made only of text and inline formatting is translated as one sentence, so word order can change
+    const kids = Array.from(el.childNodes);
+    if (el.children.length && kids.some(k => k.nodeType === 3 && k.nodeValue.trim()) && Array.from(el.querySelectorAll('*')).every(c => I18N_INLINE.has(c.tagName))) {
+      const key = i18nNorm(el.innerHTML);
+      if (collect) { out.push(key); for (const c of el.querySelectorAll('[title],[aria-label]')) visit(c); return; }
+      const t = I18N_MAP.get(key); if (t !== undefined) { el.innerHTML = t; return; }
+    }
+    for (const k of kids) {
+      if (k.nodeType === 3) { const v = i18nNorm(k.nodeValue); if (v && I18N_HAS_WORD.test(v)) { const t = tx(v); if (t !== undefined) k.nodeValue = k.nodeValue.replace(/^(\s*)[\s\S]*?(\s*)$/, (_, a, b) => a + t + b); } }
+      else if (k.nodeType === 1) visit(k);
+    }
+  };
+  visit(root);
+  return out;
+}
+if (I18N_MAP.size) i18nDom(document.body);
 const $ = s => document.querySelector(s);
-const nf1 = new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-const nf0 = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 });
+const nf1 = new Intl.NumberFormat(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const nf0 = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 0 });
 const fmtClock = s => { s = Math.max(0, s || 0); const m = Math.floor(s / 60), r = s - m * 60; return String(m).padStart(2, '0') + ':' + (r < 10 ? '0' : '') + r.toFixed(1); };
 const fmtMin = s => { const m = Math.floor(s / 60), r = Math.round(s - m * 60); return String(m).padStart(2, '0') + ':' + String(r).padStart(2, '0'); };
 const LKEY = 'wisetrack.viewer.code';
@@ -181,38 +236,38 @@ function begin(c) {
   try { localStorage.setItem(LKEY, code); } catch (e) {}
   if (location.hash.slice(1) !== code) history.replaceState(null, '', location.pathname + location.search + '#' + code);
   $('#vConnect').hidden = true; $('#vLive').hidden = false;
-  $('#meta').textContent = 'Kod ' + code;
+  $('#meta').textContent = TX('Kod ') + code;
   alive = true; wake(); openPeer();
 }
 function openPeer() {
-  if (typeof Peer === 'undefined') { setConn('Kütüphane yüklenemedi', 'bad'); return; }
+  if (typeof Peer === 'undefined') { setConn(TX('Kütüphane yüklenemedi'), 'bad'); return; }
   if (peer) { try { peer.destroy(); } catch (e) {} }
-  setConn('Sunucuya bağlanıyor…');
+  setConn(TX('Sunucuya bağlanıyor…'));
   peer = new Peer(undefined, peerOpts());
   peer.on('open', () => dial());
   peer.on('call', call => {
     call.answer();
     call.on('stream', s => { const v = $('#rv'); v.srcObject = s; v.play().catch(() => {}); $('#vmsg').hidden = true; });
-    call.on('close', () => { $('#vmsg').hidden = false; $('#vmsg').textContent = 'Görüntü akışı kapandı.'; });
+    call.on('close', () => { $('#vmsg').hidden = false; $('#vmsg').textContent = TX('Görüntü akışı kapandı.'); });
   });
   peer.on('disconnected', () => { if (alive && !peer.destroyed) setTimeout(() => { try { peer.reconnect(); } catch (e) {} }, 1500); });
   peer.on('error', err => {
     const t = err && err.type;
-    if (t === 'peer-unavailable') setConn('Telefon bulunamadı; yansıtmanın açık olduğundan emin olun', 'bad');
-    else if (t === 'network' || t === 'server-error' || t === 'socket-error' || t === 'socket-closed') setConn('Sunucuya ulaşılamıyor', 'bad');
-    else setConn('Hata: ' + (err && err.message ? err.message : t), 'bad');
+    if (t === 'peer-unavailable') setConn(TX('Telefon bulunamadı; yansıtmanın açık olduğundan emin olun'), 'bad');
+    else if (t === 'network' || t === 'server-error' || t === 'socket-error' || t === 'socket-closed') setConn(TX('Sunucuya ulaşılamıyor'), 'bad');
+    else setConn(TX('Hata: ') + (err && err.message ? err.message : t), 'bad');
     scheduleRetry();
   });
 }
 function dial() {
   if (!alive || !peer || !peer.open) return;
   if (conn) { try { conn.close(); } catch (e) {} }
-  setConn('Telefona bağlanıyor…');
+  setConn(TX('Telefona bağlanıyor…'));
   const c = peer.connect('wisetrack-' + code, { reliable: true, serialization: 'json' });
   conn = c;
-  c.on('open', () => { setConn('Bağlı', 'on'); c.send({ t: 'hello' }); });
+  c.on('open', () => { setConn(TX('Bağlı'), 'on'); c.send({ t: 'hello' }); });
   c.on('data', onData);
-  c.on('close', () => { if (conn === c) { setConn('Bağlantı koptu, yeniden deneniyor…', 'bad'); $('#vmsg').hidden = false; $('#vmsg').textContent = 'Bağlantı koptu. Yeniden bağlanılıyor…'; scheduleRetry(); } });
+  c.on('close', () => { if (conn === c) { setConn(TX('Bağlantı koptu, yeniden deneniyor…'), 'bad'); $('#vmsg').hidden = false; $('#vmsg').textContent = TX('Bağlantı koptu. Yeniden bağlanılıyor…'); scheduleRetry(); } });
   c.on('error', () => scheduleRetry());
 }
 function scheduleRetry() {
@@ -225,7 +280,7 @@ function stopAll() {
   if (conn) try { conn.close(); } catch (e) {}
   if (peer) try { peer.destroy(); } catch (e) {}
   conn = null; peer = null; $('#rv').srcObject = null;
-  $('#vLive').hidden = true; $('#vConnect').hidden = false; $('#vmsg').hidden = false; $('#vmsg').textContent = 'Görüntü bekleniyor…';
+  $('#vLive').hidden = true; $('#vConnect').hidden = false; $('#vmsg').hidden = false; $('#vmsg').textContent = TX('Görüntü bekleniyor…');
   history.replaceState(null, '', location.pathname + location.search);
 }
 
@@ -261,7 +316,7 @@ function onData(d) {
   $('#cEnd').disabled = !d.control || !locked; $('#cReset').disabled = !d.control || locked;
   $('#ctlNote').hidden = !!d.control;
   $('#detText').textContent = d.detText || '';
-  if (!d.source) { $('#vmsg').hidden = false; $('#vmsg').textContent = 'Telefonda görüntü kaynağı açılmadı.'; }
+  if (!d.source) { $('#vmsg').hidden = false; $('#vmsg').textContent = TX('Telefonda görüntü kaynağı açılmadı.'); }
 }
 const send = cmd => { if (conn && conn.open) conn.send({ t: 'cmd', cmd }); };
 $('#cMain').addEventListener('click', () => send('main'));
@@ -271,7 +326,7 @@ $('#discBtn').addEventListener('click', stopAll);
 $('#fsBtn').addEventListener('click', () => {
   const el = document.documentElement;
   if (document.fullscreenElement || document.webkitFullscreenElement) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-  else (el.requestFullscreen || el.webkitRequestFullscreen || (() => toast('Bu tarayıcı tam ekranı desteklemiyor.'))).call(el);
+  else (el.requestFullscreen || el.webkitRequestFullscreen || (() => toast(TX('Bu tarayıcı tam ekranı desteklemiyor.')))).call(el);
 });
 
 let wl = null;
@@ -282,7 +337,7 @@ $('#codeIn').addEventListener('input', e => { e.target.value = e.target.value.to
 $('#connForm').addEventListener('submit', e => {
   e.preventDefault();
   const c = $('#codeIn').value.trim().toUpperCase();
-  if (!CODE_RE.test(c)) { $('#connErr').textContent = 'Kod 6 karakter olmalı (harf ve 2–9 arası rakamlar).'; return; }
+  if (!CODE_RE.test(c)) { $('#connErr').textContent = TX('Kod 6 karakter olmalı (harf ve 2–9 arası rakamlar).'); return; }
   begin(c);
 });
 const fromHash = decodeURIComponent(location.hash.slice(1)).toUpperCase();

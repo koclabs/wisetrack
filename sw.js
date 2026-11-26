@@ -1,9 +1,10 @@
 /* WiseTrack service worker: keeps the app usable offline (tracking works without internet;
    mirroring needs the network). Bump VERSION when files change. */
-const VERSION = 'wisetrack-v10';
+const VERSION = 'wisetrack-v13';
 const SHELL = [
   './', './index.html', './izle.html', './manifest.webmanifest', './izle.webmanifest',
   './vendor/peerjs.min.js', './vendor/qrcode.js',
+  './i18n/en.js', './i18n/es.js', './i18n/ar.js', './i18n/ru.js', './i18n/zh.js', './i18n/ja.js', './i18n/ko.js',
   './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png', './icons/favicon-64.png'
 ];
 self.addEventListener('install', e => {
@@ -28,6 +29,6 @@ self.addEventListener('fetch', e => {
     const res = await net;
     if (res) return res;
     if (req.mode === 'navigate') { const idx = await cache.match('./index.html'); if (idx) return idx; }
-    return new Response('Çevrimdışı', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+    return new Response('Offline / Çevrimdışı', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
   })());
 });

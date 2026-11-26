@@ -32,9 +32,28 @@ Kurulduktan sonra ölçüm internetsiz de çalışır. Yansıtma için internet 
 ## 3. Ölçüm için telefon düzeni
 
 - Telefonu arenanın **tam üstüne**, bir tripod ya da tutucuyla sabitleyin; deney boyunca oynamamalı ve döndürülmemeli.
-- **Ana (1×) arka kamerayı** kullanın. Ultra geniş (0,5×) lens kenarları büker ve bu bükülme dört noktalı kalibrasyonla düzeltilemez.
+- **Ana (1×) arka kamerayı** kullanın. Ultra geniş (0,5×) lens ya da geniş açılı web kamerası kenarları büker; bu bükülme aşağıdaki **Arenadan lens bükülmesini ölç** ile düzeltilebilir, ama ana kamera yine de en temiz görüntüyü verir.
 - Işığı ayarladıktan sonra **Pozlama ve odağı kilitle**ye dokunun (Android'de çalışır; iPhone tarayıcısı buna izin vermez, sabit ve homojen ışık kullanın).
 - Uzun oturumlarda telefonu şarja takın. Ekran uygulama açıkken kapanmaz; uygulamadan çıkarsanız oturum güvenlik için duraklatılır.
+
+### Otomatik kalibrasyon ve kamera düzeltmeleri
+
+Kurulum > Test düzeneği ve kalibrasyon kartında:
+
+- **Arenayı otomatik bul**: arena boşken dokunun. Uygulama zemini görüntünün ortasından başlayarak ayırır, arenanın bilinen şeklini (kare, daire ya da artı) kenarlara alt piksel doğrulukla oturtur ve noktaları yerleştirir. Daire arenalarda (havuz, Barnes) kamera eğikse dairenin merkezi elipsin merkezinde görünmez; uygulama bunu kamera geometrisinden hesaplar. Artı labirentte kapalı kollar duvarlarından tanınır; emin olunamazsa **Kolları değiştir** ile düzeltin. Duvarlar zeminle aynı renkteyse noktalar duvar üstüne oturabilir; uygulama bunu fark ederse uyarır.
+- **Kalibrasyonu denetle**: görüntüdeki arena kenarının modelden ortalama kaç cm saptığını gösterir (≤0,5 cm iyi, >1,5 cm noktaları kontrol edin). Bu değer her denemenin başında kendiliğinden ölçülür ve Excel/CSV özetine yazılır.
+- **Hayvan yüksekliği düzeltmesi** (Kamera, lens ve hayvan yüksekliği bölümü): kamera hayvanın sırtını görür, zemindeki yerini değil. Kamera yüksekliği ve konumu arena noktalarından tahmin edilir (ölçtüyseniz girin) ve takip noktası zemine izdüşürülür. Düzeltme yapılmazsa kamera tam tepede olsa bile kenarlardaki konumlar dışa kayar ve toplam mesafe yaklaşık hayvan yüksekliği / (kamera yüksekliği − hayvan yüksekliği) oranında fazla çıkar (sıçan, 75 cm kamera: ≈ %5,6).
+- **Arenadan lens bükülmesini ölç**: satranç tahtası gerekmez; arenanın düz kenarlarının (daire arenada çemberin) düz/elips olmasını sağlayan bükülme katsayısı bulunur.
+- **Kamera kaymasını izle** (varsayılan açık): deneme sırasında kamera ya da telefon çarpılıp kayarsa arena kenarı ilk kareyle her saniye karşılaştırılır; kayma bulunursa noktalar ve boş arena referansı birlikte kaydırılır, olay özete yazılır.
+- Sonuçlarda, hayvanın görünür boyutu arenanın bir yanından öbürüne belirgin biçimde değişirse (kamera eğik ya da noktalar kaymış) uyarı çıkar.
+
+Sentetik videolarla doğrulama (bilinen kamera konumu, lens bükülmesi ve sıçan boyutu, 4 cm takip yüksekliği): 18° eğik kamera ve belirgin bükülmede noktalar elle tam doğru konsa bile düzeltmesiz konum hatası ortanca 1,3 cm, %95'lik 3,1 cm ve mesafe %9,8 fazlaydı; otomatik kalibrasyon + lens + yükseklik düzeltmesiyle ortanca 0,16 cm, %95'lik 0,8 cm ve mesafe farkı %0,2 oldu. 80° geniş açılı kamerada 1,9 → 0,2 cm, havuzda (220 cm yükseklik) 0,34 → 0,26 cm, Barnes'ta 1,6 → 0,2 cm. Deneme ortasında 2 cm'lik kamera kaymasında düzeltmesiz ortanca hata 1,7 cm, kayma izlemeyle 0,15 cm.
+
+### Arayüz dili / Interface language
+
+Üst çubuktaki dil menüsünden Türkçe, English, Español, العربية, Русский, 中文, 日本語 ve 한국어 seçilebilir. İlk açılışta tarayıcının dili kullanılır (desteklenmiyorsa İngilizce); seçim cihazda hatırlanır. Dil değişince sayfa yeniden yüklenir. Bağlantıya `?lang=en` gibi bir ek koyarak belirli bir dille açtırabilirsiniz. Excel/CSV başlıkları, bölge adları ve görüntüdeki yön harfleri de seçilen dilde yazılır; Arapça arayüz sağdan sola düzenlenir. Çeviriler `i18n/` klasöründedir (anahtarlar Türkçe metinlerdir).
+
+The language menu in the top bar offers Turkish, English, Spanish, Arabic, Russian, Chinese, Japanese and Korean. The browser language is used on first start (English if unsupported) and the choice is remembered. Add `?lang=xx` to a link to open the app in a given language. Excel/CSV headers and zone names follow the chosen language.
 
 ## 4. Başka ekrana yansıtma
 
@@ -90,6 +109,18 @@ ffmpeg.wasm (@ffmpeg/core 0.12.10) GPL-2.0-or-later lisanslıdır; uygulama onu 
 ### Analiz hızı
 
 Videodan analizde hız seçeneği bir üst sınırdır. Tarayıcı saniyede ekranın yenilenme sayısı kadar (çoğunlukla 60) kare verebildiği ve yoğun cihaz ayrıca kare kaçırabildiği için, uygulama hızı her kare işlenecek şekilde kendisi ayarlar: kare kaçmadıkça hızlanır, kaçtığı anda yavaşlar. Analiz bitince ortalama hız ve atlanan kare oranı gösterilir ve Excel/CSV özetine yazılır; oran %1'in üstündeyse analiz daha düşük hız sınırıyla tekrarlanmalıdır. Yumuşatma da kare sayısı yerine süreye göre uygulanır, böylece aynı video hangi hızda analiz edilirse edilsin aynı sonucu verir.
+
+### Toplu video analizi
+
+Kurulum sekmesinin sonundaki **5 · Toplu video analizi** kartı aynı düzenekte çekilmiş videoları sırayla analiz eder:
+
+1. **Video ekle** ile birden çok video seçin (bilgisayarda kartın üstüne sürükleyip de bırakabilirsiniz). Liste dosya adına göre sıralanır; hayvan kodu dosya adından gelir ve tabloda değiştirilebilir. Obje tanıma testinde her satırda yeni objeyi, su labirentinde başlangıç noktasını ayrı seçebilirsiniz.
+2. **İlk videoyu kurulum için aç** ile arenayı (obje tanımada objeleri de), eşiği ve süre ayarlarını bir kez yapın.
+3. Seçenekler: **Arena yerleşimi** tüm videolarda aynı olabilir ya da her videoda otomatik bulunabilir (kamera videolar arasında oynadıysa). **Boş arena referansı** varsayılan olarak her videonun kendisinden çıkarılır: videoya yayılmış 21 karede hayvan her noktada yalnızca birkaç karede bulunduğundan, her pikselin albino hayvanda 30., koyu hayvanda 70. yüzdeliği hayvansız zemini verir.
+4. **Toplu analizi başlat**. MPG/AVI gibi biçimler sırası gelince kendiliğinden dönüştürülür. Açılamayan ya da hayvanın bulunamadığı videolar işaretlenip atlanır, analiz durmaz. **Durdur** ile kesilen liste **Kalanları analiz et** ile sürdürülebilir.
+5. Bitince bilgisayarda **Toplu Excel** kendiliğinden iner (telefonda düğmeye dokunun). Sayfalar: *Toplu sonuçlar* (her video bir satır; tek video Excel'indeki tüm ölçütler), *Bölgeler* (uzun biçim), *Kalite* (algılanan/atlanan kare, kalibrasyon sapması, kamera kayması, uyarılar), *Ayarlar* ve isteğe bağlı *Konum kaydı*.
+
+Analiz sırasında sekme açık ve önde kalmalıdır; tarayıcı arka plandaki sekmeye video karesi vermez. Sekme arka plana alınırsa analiz duraklar, geri dönülünce kaldığı yerden devam eder. Ekran kendiliğinden kapanmaz.
 
 ## 10. İnternetsiz tek dosya sürümü (bilgisayarlar için)
 
