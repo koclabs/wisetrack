@@ -1,135 +1,144 @@
-# WiseTrack · telefon ve izleme ekranı sürümü
+# WiseTrack · phone and viewing-screen version
 
-Bu klasör, WiseTrack'in telefonda uygulama gibi çalışan web sürümüdür (PWA). Aynı dosyalar iPhone'da, Android'de, tablette ve bilgisayarda çalışır.
+**English** · [Türkçe](README.tr.md) · [Español](README.es.md) · [العربية](README.ar.md) · [Русский](README.ru.md) · [中文](README.zh.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
 
-| Dosya | Görevi |
+WiseTrack is browser-based rodent behaviour tracking software. This folder is the web version that runs like an app on a phone (PWA). The same files run on iPhone, Android, tablets and computers.
+
+| File | Purpose |
 |---|---|
-| `index.html` | Ölçümü yapan uygulama (telefonda açılır) |
-| `izle.html` | İzleme ekranı: PC, TV tarayıcısı ya da tablette açılır, telefonun görüntüsünü ve sonuçlarını canlı gösterir |
-| `sw.js`, `*.webmanifest`, `icons/` | Uygulama olarak kurulum ve çevrimdışı çalışma |
-| `vendor/` | Yansıtma (PeerJS, MIT) ve QR kod (qrcode-generator, MIT) kütüphaneleri |
+| `index.html` | The app that does the tracking (opened on the phone) |
+| `izle.html` | Viewing screen: opened on a PC, TV browser or tablet; shows the phone's image and results live |
+| `sw.js`, `*.webmanifest`, `icons/` | Installation as an app and offline use |
+| `vendor/` | Mirroring (PeerJS, MIT) and QR code (qrcode-generator, MIT) libraries |
+| `i18n/` | Interface translations (English, Spanish, Arabic, Russian, Chinese, Japanese, Korean) |
 
-## 1. Yayına alma (bir kez, ~5 dakika)
+**Supported interface languages:** Türkçe, English, Español, العربية, Русский, 中文, 日本語, 한국어. The language is chosen from the menu in the top bar; see [Interface language](#interface-language).
 
-Telefon tarayıcıları kamerayı yalnızca **https://** adreslerinde açar. Dosyaları doğrudan telefona kopyalamak işe yaramaz; ücretsiz bir https adresine koymanız gerekir.
+## Versions and citation
 
-**GitHub Pages (önerilen, kalıcı ve ücretsiz)**
-1. github.com'da ücretsiz hesap açın, **New repository** ile örneğin `wisetrack` adlı *public* bir depo oluşturun.
-2. **Add file → Upload files** ile bu klasörün *içindekileri* (index.html en üst düzeyde olacak şekilde) sürükleyip **Commit** deyin.
-3. **Settings → Pages → Branch: main / (root) → Save**. Bir iki dakika sonra adresiniz `https://KULLANICIADI.github.io/wisetrack/` olur.
+The version analysed in the paper (v10) is archived on Zenodo (DOI [10.5281/zenodo.24535051](https://doi.org/10.5281/zenodo.24535051), commit [`0704db8`](https://github.com/koclabs/wisetrack/tree/0704db8)). Later versions add automatic calibration and camera corrections (v11), batch video analysis (v12) and additional interface languages (v13). To reproduce the analyses in the paper, use the archived version.
 
-Alternatif: Netlify Drop (app.netlify.com/drop) sayfasına klasörü sürükleyip bırakmak da https adresi verir; kalıcı olması için ücretsiz hesapla sahiplenmeniz gerekir.
+WiseTrack is released under the MIT License (see `LICENSE`). Citation details are in `CITATION.cff`.
 
-Güncelleme yaptığınızda dosyaları yeniden yükleyin ve `sw.js` içindeki `VERSION` değerini artırın (ör. `wisetrack-v4`); telefonlar yeni sürümü bir sonraki açılışta alır.
+## 1. Publishing (once, about 5 minutes)
 
-## 2. Telefona kurulum
+Phone browsers open the camera only on **https://** addresses. Copying the files directly onto the phone does not work; they must be placed on a free https address.
 
-- **iPhone / iPad:** Adresi **Safari**'de açın → Paylaş simgesi → **Ana Ekrana Ekle**. İlk açılışta kamera iznine “İzin Ver” deyin.
-- **Android:** Adresi **Chrome**'da açın → menü (⋮) → **Uygulamayı yükle** (ya da “Ana ekrana ekle”).
+**GitHub Pages (recommended, permanent and free)**
+1. Create a free account on github.com and use **New repository** to create a *public* repository, for example `wisetrack`.
+2. Use **Add file → Upload files** to drag in the *contents* of this folder (with index.html at the top level) and click **Commit**.
+3. **Settings → Pages → Branch: main / (root) → Save**. After a minute or two your address is `https://USERNAME.github.io/wisetrack/`.
 
-Kurulduktan sonra ölçüm internetsiz de çalışır. Yansıtma için internet gerekir.
+Alternative: dragging the folder onto Netlify Drop (app.netlify.com/drop) also gives an https address; to keep it permanently you need to claim it with a free account.
 
-## 3. Ölçüm için telefon düzeni
+When you update, upload the files again and increase the `VERSION` value in `sw.js` (e.g. from `wisetrack-v13` to `wisetrack-v14`); phones pick up the new version the next time the app is opened.
 
-- Telefonu arenanın **tam üstüne**, bir tripod ya da tutucuyla sabitleyin; deney boyunca oynamamalı ve döndürülmemeli.
-- **Ana (1×) arka kamerayı** kullanın. Ultra geniş (0,5×) lens ya da geniş açılı web kamerası kenarları büker; bu bükülme aşağıdaki **Arenadan lens bükülmesini ölç** ile düzeltilebilir, ama ana kamera yine de en temiz görüntüyü verir.
-- Işığı ayarladıktan sonra **Pozlama ve odağı kilitle**ye dokunun (Android'de çalışır; iPhone tarayıcısı buna izin vermez, sabit ve homojen ışık kullanın).
-- Uzun oturumlarda telefonu şarja takın. Ekran uygulama açıkken kapanmaz; uygulamadan çıkarsanız oturum güvenlik için duraklatılır.
+## 2. Installing on the phone
 
-### Otomatik kalibrasyon ve kamera düzeltmeleri
+- **iPhone / iPad:** Open the address in **Safari** → Share icon → **Add to Home Screen**. On first start, tap “Allow” for camera access.
+- **Android:** Open the address in **Chrome** → menu (⋮) → **Install app** (or “Add to Home screen”).
 
-Kurulum > Test düzeneği ve kalibrasyon kartında:
+Once installed, tracking works without internet. Mirroring needs internet.
 
-- **Arenayı otomatik bul**: arena boşken dokunun. Uygulama zemini görüntünün ortasından başlayarak ayırır, arenanın bilinen şeklini (kare, daire ya da artı) kenarlara alt piksel doğrulukla oturtur ve noktaları yerleştirir. Daire arenalarda (havuz, Barnes) kamera eğikse dairenin merkezi elipsin merkezinde görünmez; uygulama bunu kamera geometrisinden hesaplar. Artı labirentte kapalı kollar duvarlarından tanınır; emin olunamazsa **Kolları değiştir** ile düzeltin. Duvarlar zeminle aynı renkteyse noktalar duvar üstüne oturabilir; uygulama bunu fark ederse uyarır.
-- **Kalibrasyonu denetle**: görüntüdeki arena kenarının modelden ortalama kaç cm saptığını gösterir (≤0,5 cm iyi, >1,5 cm noktaları kontrol edin). Bu değer her denemenin başında kendiliğinden ölçülür ve Excel/CSV özetine yazılır.
-- **Hayvan yüksekliği düzeltmesi** (Kamera, lens ve hayvan yüksekliği bölümü): kamera hayvanın sırtını görür, zemindeki yerini değil. Kamera yüksekliği ve konumu arena noktalarından tahmin edilir (ölçtüyseniz girin) ve takip noktası zemine izdüşürülür. Düzeltme yapılmazsa kamera tam tepede olsa bile kenarlardaki konumlar dışa kayar ve toplam mesafe yaklaşık hayvan yüksekliği / (kamera yüksekliği − hayvan yüksekliği) oranında fazla çıkar (sıçan, 75 cm kamera: ≈ %5,6).
-- **Arenadan lens bükülmesini ölç**: satranç tahtası gerekmez; arenanın düz kenarlarının (daire arenada çemberin) düz/elips olmasını sağlayan bükülme katsayısı bulunur.
-- **Kamera kaymasını izle** (varsayılan açık): deneme sırasında kamera ya da telefon çarpılıp kayarsa arena kenarı ilk kareyle her saniye karşılaştırılır; kayma bulunursa noktalar ve boş arena referansı birlikte kaydırılır, olay özete yazılır.
-- Sonuçlarda, hayvanın görünür boyutu arenanın bir yanından öbürüne belirgin biçimde değişirse (kamera eğik ya da noktalar kaymış) uyarı çıkar.
+## 3. Setting up the phone for tracking
 
-Sentetik videolarla doğrulama (bilinen kamera konumu, lens bükülmesi ve sıçan boyutu, 4 cm takip yüksekliği): 18° eğik kamera ve belirgin bükülmede noktalar elle tam doğru konsa bile düzeltmesiz konum hatası ortanca 1,3 cm, %95'lik 3,1 cm ve mesafe %9,8 fazlaydı; otomatik kalibrasyon + lens + yükseklik düzeltmesiyle ortanca 0,16 cm, %95'lik 0,8 cm ve mesafe farkı %0,2 oldu. 80° geniş açılı kamerada 1,9 → 0,2 cm, havuzda (220 cm yükseklik) 0,34 → 0,26 cm, Barnes'ta 1,6 → 0,2 cm. Deneme ortasında 2 cm'lik kamera kaymasında düzeltmesiz ortanca hata 1,7 cm, kayma izlemeyle 0,15 cm.
+- Fix the phone **directly above** the arena with a tripod or holder; it must not move or rotate during the experiment.
+- Use the **main (1×) rear camera**. An ultra-wide (0.5×) lens or a wide-angle webcam bends the edges; this distortion can be corrected with **Measure lens distortion from the arena** (below), but the main camera still gives the cleanest image.
+- After setting the light, tap **Lock exposure and focus** (works on Android; the iPhone browser does not allow it, so use steady, even lighting).
+- Keep the phone on the charger during long sessions. The screen stays on while the app is open; if you leave the app, the session is paused for safety.
 
-### Arayüz dili / Interface language
+### Automatic calibration and camera corrections
 
-Üst çubuktaki dil menüsünden Türkçe, English, Español, العربية, Русский, 中文, 日本語 ve 한국어 seçilebilir. İlk açılışta tarayıcının dili kullanılır (desteklenmiyorsa İngilizce); seçim cihazda hatırlanır. Dil değişince sayfa yeniden yüklenir. Bağlantıya `?lang=en` gibi bir ek koyarak belirli bir dille açtırabilirsiniz. Excel/CSV başlıkları, bölge adları ve görüntüdeki yön harfleri de seçilen dilde yazılır; Arapça arayüz sağdan sola düzenlenir. Çeviriler `i18n/` klasöründedir (anahtarlar Türkçe metinlerdir).
+In Setup > Test apparatus and calibration:
 
-The language menu in the top bar offers Turkish, English, Spanish, Arabic, Russian, Chinese, Japanese and Korean. The browser language is used on first start (English if unsupported) and the choice is remembered. Add `?lang=xx` to a link to open the app in a given language. Excel/CSV headers and zone names follow the chosen language.
+- **Find arena automatically**: tap while the arena is empty. The app separates the floor starting from the middle of the image, fits the arena's known shape (square, circle or plus) to its edges with sub-pixel accuracy and places the points. In circular arenas (water maze, Barnes), if the camera is tilted the centre of the circle does not appear at the centre of the ellipse; the app calculates it from the camera geometry. In the plus maze the closed arms are recognised by their walls; if this is uncertain, correct it with **Swap arms**. If the walls are the same colour as the floor, the points may snap to the top of the walls; the app warns when it detects this.
+- **Check calibration**: shows how many cm the arena edge in the image deviates from the model on average (≤0.5 cm good, >1.5 cm check the points). This value is also measured automatically at the start of every trial and written to the Excel/CSV summary.
+- **Animal height correction** (in the Camera, lens and animal height section): the camera sees the animal's back, not its position on the floor. The camera height and position are estimated from the arena points (enter the height if you measured it), and the tracking point is projected onto the floor. Without correction, positions near the edges shift outwards even with the camera straight overhead, and the total distance is overestimated by roughly animal height / (camera height − animal height) (rat, camera at 75 cm: ≈ 5.6%).
+- **Measure lens distortion from the arena**: no chessboard is needed; the app finds the distortion coefficient that makes the arena's straight edges straight (the rim an ellipse in circular arenas).
+- **Watch for camera shift** (on by default): if the camera or phone is knocked during a trial, the arena edge is compared with the first frame every second; if a shift is found, the points and the empty-arena reference are moved together and the event is recorded in the summary.
+- In the results, a warning appears if the animal's apparent size changes clearly from one side of the arena to the other (tilted camera or shifted points).
 
-## 4. Başka ekrana yansıtma
+Validation with synthetic videos (known camera position, lens distortion and rat size, 4 cm tracking height): with an 18° tilted camera and marked distortion, even with the points placed exactly by hand, the uncorrected position error was 1.3 cm median and 3.1 cm at the 95th percentile, and distance was overestimated by 9.8%; with automatic calibration + lens + height correction the error was 0.16 cm median, 0.8 cm at the 95th percentile, and the distance difference 0.2%. With an 80° wide-angle camera 1.9 → 0.2 cm, in the water maze (camera at 220 cm) 0.34 → 0.26 cm, in the Barnes maze 1.6 → 0.2 cm. With a 2 cm camera shift in the middle of a trial, the median error was 1.7 cm without correction and 0.15 cm with shift monitoring.
 
-**Uygulamanın kendi yansıtması (her cihazda çalışır):** Telefonda **Yansıt → Yansıtmayı başlat**. Çıkan QR kodu tabletin kamerasıyla okutun ya da bilgisayar/TV tarayıcısında `…/izle.html` adresini açıp 6 haneli kodu girin. Etiketli canlı görüntü, süre, bölge tablosu ve mesafe gelir. “İzleme ekranından başlat/durdur” açıksa deneyi arenaya yaklaşmadan oradan yönetebilirsiniz. Kod telefonda saklanır; TV'de izleme sayfasını bir kez yer imine eklerseniz sonraki deneylerde aynı kodla bağlanır. Aynı anda birden fazla ekran bağlanabilir.
+### Interface language
 
-Nasıl çalışır: iki cihaz, ücretsiz PeerJS sunucusu üzerinden yalnızca birbirini bulur; görüntü ve veriler cihazlar arasında doğrudan (WebRTC, şifreli) akar. Kurum ağı cihazlar arası bağlantıyı engellerse telefonun kişisel erişim noktasını (hotspot) açıp izleme cihazını ona bağlayın.
+The language menu in the top bar offers Türkçe (Turkish), English, Español (Spanish), العربية (Arabic), Русский (Russian), 中文 (Chinese), 日本語 (Japanese) and 한국어 (Korean). On first start the browser language is used (English if it is not supported); the choice is remembered on the device. Changing the language reloads the page. Add `?lang=xx` to a link (`en`, `tr`, `es`, `ar`, `ru`, `zh`, `ja`, `ko`) to open the app in a given language. Excel/CSV headers, zone names and the compass letters drawn on the image also follow the chosen language; the Arabic interface is laid out right to left. Translations are in the `i18n/` folder (the keys are the Turkish source strings).
 
-**İşletim sisteminin yansıtması (ek seçenek):**
+## 4. Mirroring to another screen
 
-| Telefon → | Mac | Windows PC | TV | Tablet |
+**The app's own mirroring (works on every device):** On the phone, go to **Mirror → Start mirroring**. Scan the QR code with the tablet's camera, or open `…/izle.html` in a computer or TV browser and enter the 6-character code. The labelled live image, time, zone table and distance appear there. If “Allow start/stop from the viewing screen” is on, you can run the trial from there without approaching the arena. The code is stored on the phone; if you bookmark the viewing page on the TV once, it connects with the same code in later experiments. Several screens can be connected at the same time.
+
+How it works: the two devices only find each other through the free PeerJS server; the image and data flow directly between the devices (WebRTC, encrypted). If the institution's network blocks device-to-device connections, turn on the phone's personal hotspot and connect the viewing device to it.
+
+**Operating-system mirroring (additional option):**
+
+| Phone → | Mac | Windows PC | TV | Tablet |
 |---|---|---|---|---|
 | iPhone | AirPlay (macOS 12+) | izle.html | Apple TV / AirPlay 2 TV | izle.html |
-| Android | scrcpy (USB, ücretsiz) | scrcpy (USB, ücretsiz) | Yayınla / Smart View / Chromecast | izle.html |
+| Android | scrcpy (USB, free) | scrcpy (USB, free) | Cast / Smart View / Chromecast | izle.html |
 
-## 5. Sonuçları dışa aktarma
+## 5. Exporting results
 
-Sonuçlar sekmesinde **Excel (.xlsx)** tek dosyada dört sayfa verir: *Özet* (metrikler ve kullanılan ayarlar), *Bölgeler*, *Konum kaydı* (kare kare X/Y, hız, bölge) ve *Tek satır* (her hayvan için tek satırlık sonuç; grup tablonuza doğrudan yapıştırılır). CSV ve PNG seçenekleri de durur. Telefonda dışa aktarma paylaşım menüsünü açar; Drive, Dosyalar ya da e-posta seçilebilir.
+In the Results tab, **Excel (.xlsx)** gives four sheets in one file: *Summary* (metrics and the settings used), *Zones*, *Position log* (frame-by-frame X/Y, speed, zone) and *Single row* (a one-row result per animal that can be pasted straight into your group table). CSV and PNG options are also available. On a phone, exporting opens the share menu, where Drive, Files or e-mail can be chosen.
 
-## 6. Yeni obje tanıma (NOR)
+## 6. Novel object recognition (NOR)
 
-Kurulum > Test düzeneği'nde **Obje tanıma**'yı seçin ve aşamayı (Alışma / Tanışma / Test) belirleyin. Objeler arenadayken ve hayvan yokken **Objeleri otomatik bul**'a dokunun: objeler bulunur ve aynı kare boş arena referansı olarak kaydedilir (bu, objelerin hayvan sanılmasını önler). Bulunan objeleri görüntüde sürükleyerek taşıyabilir, beyaz kare tutamaçla boyutlandırabilir, şeklini (daire/dikdörtgen) değiştirebilir, silebilir ya da elle obje ekleyebilirsiniz. Test aşamasında hangi objenin yeni olduğu seçilmeden kayıt başlamaz.
+In Setup > Test apparatus, choose **Object recognition** and set the phase (Habituation / Familiarisation / Test). With the objects in the arena and no animal present, tap **Find objects automatically**: the objects are found and the same frame is saved as the empty-arena reference (this keeps the objects from being taken for the animal). You can drag the found objects in the image to move them, resize them with the white square handle, change their shape (circle/rectangle), delete them or add objects by hand. In the test phase, recording does not start until you choose which object is novel.
 
-Keşif, varsayılan olarak hayvanın **burun noktasının** objeye 2 cm'den yakın olmasıyla sayılır; gövde merkezi objenin üstündeyse (tırmanma) keşif sayılmaz. Burun noktası gövde şeklinden (baş ucu daha dar) ve hareket yönünden tahmin edilir; ekranda camgöbeği bir nokta olarak görünür. Sonuçlarda her obje için keşif süresi, keşif sayısı, ilk keşif latansı; testte ayırt etme indeksi DI = (Yeni − Tanıdık) / (Yeni + Tanıdık) ve tanıma indeksi RI verilir. Burun tahmini, el ile skorlanmış birkaç videoyla karşılaştırılarak doğrulanmalıdır; gerekirse ölçüt “Merkez noktası”na alınabilir.
+By default, exploration is counted when the animal's **nose point** is closer than 2 cm to the object; if the body centre is on top of the object (climbing), it is not counted as exploration. The nose point is estimated from the body shape (the head end is narrower) and the direction of movement; it appears on screen as a cyan dot. The results give, for each object, the exploration time, number of explorations and first-exploration latency; in the test phase, the discrimination index DI = (Novel − Familiar) / (Novel + Familiar) and the recognition index RI. The nose estimate should be validated against a few hand-scored videos; if needed, the criterion can be switched to “Centre point”.
 
-**Hayvanla aynı renkte objeler.** Uygulama objenin kendisini hayvan sanmaması için üç önlem alır: (1) canlı kamerada “Hayvan arenada algılanınca başlat” açıkken Başlat'a basıldığında boş arena (objeler son yerlerindeyken) kendiliğinden yeniden kaydedilir; bu sırada ekranda “Boş arena kaydediliyor, hayvanı henüz koymayın” yazar. (2) Ardından her obje kontrol edilir; boş arenaya rağmen hâlâ hayvan gibi görünen bir obje (örneğin referans kaydedildikten sonra yeri değişmişse ya da videoda referans yoksa) o deneme için hayvan algılamasından çıkarılır, ekranda uyarı çıkar ve Excel özetine yazılır. (3) Tamamen bir objenin üzerinde kalan bir leke, hayvan az önce oradaysa (tırmanma) dışında, hiçbir zaman hayvan olarak seçilmez. Algılamadan çıkarılan objede tırmanma ayırt edilemez ve objenin 0,5 cm yakınındaki burun ucu görünmez; keşif süresi bu nedenle biraz düşük çıkabilir. Kurulum'daki “Obje alanlarını hayvan algılamasından her zaman çıkar” seçeneği aynı çıkarmayı her denemede uygular.
+**Objects the same colour as the animal.** The app takes three measures so that an object itself is not taken for the animal: (1) with the live camera, when “Start when the animal is detected in the arena” is on and Start is pressed, the empty arena (with the objects in their final positions) is saved again automatically; meanwhile the screen shows “Saving the empty arena, don't put the animal in yet”. (2) Each object is then checked; an object that still looks like the animal despite the empty-arena reference (for example because it was moved after the reference was saved, or because a video has no reference) is excluded from animal detection for that trial, a warning appears, and this is written to the Excel summary. (3) A blob lying entirely on an object is never chosen as the animal, except when the animal was just there (climbing). Climbing cannot be detected on an excluded object, and the nose tip within 0.5 cm of the object is not visible; exploration time may therefore come out slightly low. The Setup option “Always exclude object areas from animal detection” applies the same exclusion in every trial.
 
-## 7. Morris su labirenti (MWM)
+## 7. Morris water maze (MWM)
 
-Kurulum > Test düzeneği'nde **Su labirenti**'ni seçin, havuz ve platform çapını girin, aşamayı (Öğrenme / Prob testi / Görünür platform) ve başlangıç noktasını seçin. Görüntüdeki K, D, G, B noktalarını havuz kenarındaki kuzey, doğu, güney ve batı işaretlerine sürükleyin; platformu görüntüde sürükleyerek gerçek yerine koyun. Hedef ve karşı çeyrek platformun konumundan kendiliğinden belirlenir. Hayvan yokken Algılama > **Boş arenayı kaydet** ile boş havuzu kaydedin; bu, su yüzeyindeki sabit ışık yansımalarının hayvan sanılmasını önler. Su labirenti seçildiğinde deneme süresi 60 saniyeye ayarlanır.
+In Setup > Test apparatus, choose **Water maze**, enter the pool and platform diameters, and choose the phase (Training / Probe test / Visible) and the start point. Drag the N, E, S, W points in the image onto the north, east, south and west marks on the pool rim; drag the platform in the image to its real position. The target and opposite quadrants are set automatically from the platform's position. With no animal present, save the empty pool with Detection > **Save empty arena**; this keeps steady light reflections on the water surface from being taken for the animal. When the water maze is selected, the trial duration is set to 60 seconds.
 
-- **Öğrenme ve görünür platform:** hayvanın merkez noktası platform alanına girip ayarlanan süre (varsayılan 2 s) kadar kaldığında deneme kendiliğinden biter. Kaçış latansı (platforma ilk varış), platformu bulup bulmadığı, yol uzunluğu, yol verimliliği (başlangıçtan platforma düz uzaklık / yüzülen yol), hedef çeyrekte geçen süre, platforma ortalama uzaklık, duvar kenarında geçen süre (tigmotaksi) ve yüzme hızı verilir. Süre dolduğunda platform bulunamamışsa kaçış latansı deneme süresi olarak yazılır.
-- **Prob testi:** hedef ve karşı çeyrekte geçen süre yüzdesi, platform yerinden geçiş sayısı, platform yerine ilk varış süresi ve platforma ortalama uzaklık verilir. Platform yeri geçişleri için bölge geçiş süresi uygulanmaz.
+- **Training and visible platform:** the trial ends automatically when the animal's centre point enters the platform area and stays there for the set time (default 2 s). Escape latency (first arrival at the platform), whether the platform was found, path length, path efficiency (straight-line distance from start to platform / distance swum), time in the target quadrant, mean distance to the platform, time near the wall (thigmotaxis) and swim speed are given. If the platform is not found before time runs out, the escape latency is recorded as the trial duration.
+- **Probe test:** the percentage of time in the target and opposite quadrants, the number of platform-location crossings, the time of first arrival at the platform location and the mean distance to the platform are given. The zone transition time is not applied to platform-location crossings.
 
-Excel dosyasının *Tek satır* sayfasında “Hedef çeyrek” ve “Karşı çeyrek” sütunları her hayvanda aynı adla yer alır; platformun yeri gruplar arasında farklı olsa bile sonuçlar alt alta yapıştırılabilir.
+In the *Single row* sheet of the Excel file, the “Target quadrant” and “Opposite quadrant” columns have the same names for every animal, so results can be pasted one below another even if the platform position differs between groups.
 
-## 8. Barnes labirenti
+## 8. Barnes maze
 
-Kurulum > Test düzeneği'nde **Barnes labirenti**'ni seçin; platform çapını, delik sayısını, delik çapını ve delik merkezinin platform kenarına uzaklığını girin (varsayılan fare platformu: 92 cm, 20 delik, 5 cm). K, D, G, B noktalarını platform kenarına sürükleyin; **K noktası 1 numaralı deliğin hizasında** olmalıdır, delikler saat yönünde numaralanır. Çizilen delik halkası görüntüdeki deliklerle örtüşmüyorsa **Delikleri otomatik hizala**'ya dokunun ya da kaydırıcıyla döndürün. Hedef (kaçış) deliğini listeden seçin ya da görüntüde deliğe dokunun. Hayvan yokken Algılama > **Boş arenayı kaydet** ile boş platformu kaydedin; aksi hâlde koyu delikler (özellikle siyah hayvanla) hayvan sanılabilir. Barnes seçildiğinde deneme süresi 180 saniyeye ayarlanır.
+In Setup > Test apparatus, choose **Barnes maze**; enter the platform diameter, the number of holes, the hole diameter and the distance from the hole centre to the platform edge (default mouse platform: 92 cm, 20 holes, 5 cm). Drag the N, E, S, W points to the platform edge; **point N must be in line with hole 1**, and the holes are numbered clockwise. If the drawn ring of holes does not match the holes in the image, tap **Align holes automatically** or rotate it with the slider. Choose the target (escape) hole from the list or tap the hole in the image. With no animal present, save the empty platform with Detection > **Save empty arena**; otherwise the dark holes (especially with a black animal) may be taken for the animal. When the Barnes maze is selected, the trial duration is set to 180 seconds.
 
-- **Delik ziyareti:** hayvanın burun noktası deliğin kenarına en çok 1 cm yaklaştığında (ayarlanabilir) ziyaret sayılır. Hedef dışı her ziyaret bir hatadır; aynı deliğe tekrar ziyaret de sayılır.
-- **Öğrenme:** birincil latans, birincil hata ve birincil yol (hedef deliğe ilk ziyarete kadar); toplam latans, toplam hata ve toplam yol (kaçış kutusuna girene kadar) verilir. Hayvan hedef deliğin yanında 1 saniye (ayarlanabilir) görüntüden kaybolduğunda kaçış kutusuna girmiş sayılır ve deneme biter; kaybolma anı toplam latanstır.
-- **Prob testi:** hedef deliğe ve diğer deliklere ziyaret sayısı, hedef delik ziyaret oranı, hedef çeyrekte geçen süre ve birincil ölçümler verilir.
-- **Arama stratejisi** otomatik önerilir: *Doğrudan* (en çok 3 hata, hepsi hedefe 2 delik mesafede), *Seri* (tek yönde ardışık en az 3 komşu delik), diğerleri *Rastgele*. Delik ziyaret sırası Excel özetine yazılır; öneri bu sıra üzerinden kontrol edilmelidir.
+- **Hole visit:** a visit is counted when the animal's nose point comes within 1 cm (adjustable) of the edge of a hole. Every visit to a non-target hole is an error; repeated visits to the same hole also count.
+- **Training:** primary latency, primary errors and primary path (until the first visit to the target hole), and total latency, total errors and total path (until the animal enters the escape box) are given. When the animal vanishes from the image next to the target hole for 1 second (adjustable), it is counted as having entered the escape box and the trial ends; the moment it vanished is the total latency.
+- **Probe test:** the number of visits to the target hole and to the other holes, the target-hole visit ratio, the time in the target quadrant and the primary measures are given.
+- **Search strategy** is suggested automatically: *Direct* (at most 3 errors, all within 2 holes of the target), *Serial* (at least 3 consecutive neighbouring holes in one direction), all others *Random*. The hole visit sequence is written to the Excel summary; the suggestion should be checked against this sequence.
 
-Excel'in *Tek satır* sayfasında delik sütunları “Delik 1 … Delik N”, çeyrekler “Hedef / Karşı / Yan” olarak adlandırılır; hedef delik hayvandan hayvana değişse de sonuçlar alt alta yapıştırılabilir.
+In the *Single row* sheet of the Excel file, the hole columns are named “Hole 1 … Hole N” and the quadrant columns “Target quadrant”, “Opposite quadrant” and the two adjacent quadrants, so results can be pasted one below another even when the target hole changes from animal to animal.
 
-## 9. MPG, AVI ve diğer video biçimleri
+## 9. MPG, AVI and other video formats
 
-Tarayıcılar MP4 (H.264), MOV ve WebM videolarını doğrudan açar. MPG/MPEG (MPEG-1/2), VOB, AVI, WMV, FLV, TS/MTS gibi biçimler seçildiğinde uygulama **MP4'e dönüştür ve aç** düğmesini gösterir. Dönüştürme tamamen cihazda, ffmpeg.wasm ile yapılır; video hiçbir yere gönderilmez. Dönüştürücü (yaklaşık 32 MB) ilk kullanımda jsDelivr'den indirilir ve tarayıcı önbelleğinde kalır, bu yüzden ilk dönüştürmede internet gerekir. Geçmeli (interlaced) DVR/DVD kayıtları otomatik olarak düzeltilir ve görüntü en çok 960 piksel genişliğe indirilir. Bilgisayarda 1 dakikalık standart çözünürlüklü video yaklaşık yarım dakikada dönüşür; telefonda daha yavaştır. Dönüşen dosya **Dönüştürülen videoyu kaydet** ile saklanırsa aynı video tekrar analiz edilirken yeniden dönüştürmek gerekmez.
+Browsers open MP4 (H.264), MOV and WebM videos directly. When formats such as MPG/MPEG (MPEG-1/2), VOB, AVI, WMV, FLV or TS/MTS are chosen, the app shows a **Convert to MP4 and open** button. Conversion is done entirely on the device with ffmpeg.wasm; the video is not sent anywhere. The converter (about 32 MB) is downloaded from jsDelivr on first use and stays in the browser cache, so internet is needed for the first conversion. Interlaced DVR/DVD recordings are deinterlaced automatically, and the image is reduced to at most 960 pixels wide. On a computer, a 1-minute standard-definition video converts in about half a minute; it is slower on a phone. If the converted file is kept with **Save converted video**, the same video does not need to be converted again when it is reanalysed.
 
-ffmpeg.wasm (@ffmpeg/core 0.12.10) GPL-2.0-or-later lisanslıdır; uygulama onu yalnızca çalışma anında CDN'den yükler. Kaynak kodu: https://github.com/ffmpegwasm/ffmpeg.wasm
+ffmpeg.wasm (@ffmpeg/core 0.12.10) is licensed GPL-2.0-or-later; the app only loads it from the CDN at run time. Source code: https://github.com/ffmpegwasm/ffmpeg.wasm
 
-### Analiz hızı
+### Analysis speed
 
-Videodan analizde hız seçeneği bir üst sınırdır. Tarayıcı saniyede ekranın yenilenme sayısı kadar (çoğunlukla 60) kare verebildiği ve yoğun cihaz ayrıca kare kaçırabildiği için, uygulama hızı her kare işlenecek şekilde kendisi ayarlar: kare kaçmadıkça hızlanır, kaçtığı anda yavaşlar. Analiz bitince ortalama hız ve atlanan kare oranı gösterilir ve Excel/CSV özetine yazılır; oran %1'in üstündeyse analiz daha düşük hız sınırıyla tekrarlanmalıdır. Yumuşatma da kare sayısı yerine süreye göre uygulanır, böylece aynı video hangi hızda analiz edilirse edilsin aynı sonucu verir.
+When analysing a video, the speed option is an upper limit. Because the browser can deliver at most as many frames per second as the screen refresh rate (usually 60) and a busy device may also drop frames, the app sets the speed itself so that every frame is processed: it speeds up while no frames are dropped and slows down as soon as one is. When the analysis ends, the mean speed and the proportion of skipped frames are shown and written to the Excel/CSV summary; if the proportion is above 1%, the analysis should be repeated with a lower speed limit. Smoothing is applied by time rather than by number of frames, so the same video gives the same result at whatever speed it is analysed.
 
-### Toplu video analizi
+### Batch video analysis
 
-Kurulum sekmesinin sonundaki **5 · Toplu video analizi** kartı aynı düzenekte çekilmiş videoları sırayla analiz eder:
+The **5 · Batch video analysis** card at the end of the Setup tab analyses videos recorded with the same apparatus one after another:
 
-1. **Video ekle** ile birden çok video seçin (bilgisayarda kartın üstüne sürükleyip de bırakabilirsiniz). Liste dosya adına göre sıralanır; hayvan kodu dosya adından gelir ve tabloda değiştirilebilir. Obje tanıma testinde her satırda yeni objeyi, su labirentinde başlangıç noktasını ayrı seçebilirsiniz.
-2. **İlk videoyu kurulum için aç** ile arenayı (obje tanımada objeleri de), eşiği ve süre ayarlarını bir kez yapın.
-3. Seçenekler: **Arena yerleşimi** tüm videolarda aynı olabilir ya da her videoda otomatik bulunabilir (kamera videolar arasında oynadıysa). **Boş arena referansı** varsayılan olarak her videonun kendisinden çıkarılır: videoya yayılmış 21 karede hayvan her noktada yalnızca birkaç karede bulunduğundan, her pikselin albino hayvanda 30., koyu hayvanda 70. yüzdeliği hayvansız zemini verir.
-4. **Toplu analizi başlat**. MPG/AVI gibi biçimler sırası gelince kendiliğinden dönüştürülür. Açılamayan ya da hayvanın bulunamadığı videolar işaretlenip atlanır, analiz durmaz. **Durdur** ile kesilen liste **Kalanları analiz et** ile sürdürülebilir.
-5. Bitince bilgisayarda **Toplu Excel** kendiliğinden iner (telefonda düğmeye dokunun). Sayfalar: *Toplu sonuçlar* (her video bir satır; tek video Excel'indeki tüm ölçütler), *Bölgeler* (uzun biçim), *Kalite* (algılanan/atlanan kare, kalibrasyon sapması, kamera kayması, uyarılar), *Ayarlar* ve isteğe bağlı *Konum kaydı*.
+1. Choose several videos with **Add videos** (on a computer you can also drag and drop them onto the card). The list is sorted by file name; the animal code is taken from the file name and can be changed in the table. In object recognition you can choose the novel object, and in the water maze the start point, separately for each row.
+2. Set up the arena (and the objects in object recognition), the threshold and the duration once with **Open the first video for setup**.
+3. Options: **Arena placement** can be the same in all videos or found automatically in each video (if the camera moved between videos). The **Empty-arena reference** is by default extracted from each video itself: across 21 frames spread over the video the animal is at any given point in only a few frames, so the 30th percentile of each pixel (albino animal) or the 70th percentile (dark animal) gives the floor without the animal.
+4. **Start batch analysis**. Formats such as MPG/AVI are converted automatically when their turn comes. Videos that cannot be opened or in which the animal is not found are marked and skipped; the analysis does not stop. A list interrupted with **Stop** can be continued with **Analyse the rest**.
+5. When it finishes, the **Batch Excel** file downloads automatically on a computer (tap the button on a phone). Sheets: *Batch results* (one row per video, with all measures from the single-video Excel file), *Zones* (long format), *Quality* (detected/skipped frames, calibration deviation, camera shift, warnings), *Settings* and, optionally, *Position log*.
 
-Analiz sırasında sekme açık ve önde kalmalıdır; tarayıcı arka plandaki sekmeye video karesi vermez. Sekme arka plana alınırsa analiz duraklar, geri dönülünce kaldığı yerden devam eder. Ekran kendiliğinden kapanmaz.
+During the analysis the tab must stay open and in front, because the browser does not deliver video frames to a background tab. If the tab is sent to the background, the analysis pauses and continues where it left off when you return. The screen does not turn off by itself.
 
-## 10. İnternetsiz tek dosya sürümü (bilgisayarlar için)
+## 10. Offline single-file version (for computers)
 
-`wisetrack.html` ayrı olarak da verilir: bilgisayara indirip çift tıklayınca Chrome ya da Edge'de açılır; kurulum, internet ve hesap gerekmez. Kamera, video analizi ve Excel dahil her şey çalışır; yalnızca uygulama içi yansıtma bu sürümde kapalıdır ve MPG gibi biçimlerin dönüştürülmesi için internet gerekir. Telefonlarda indirilen HTML dosyaları güvenilir biçimde açılmadığı için telefonda web adresi + ana ekrana ekle yolunu kullanın.
+`wisetrack.html` is also provided separately: download it to a computer and double-click to open it in Chrome or Edge; no installation, internet or account is needed. Everything works, including the camera, video analysis, Excel export and all interface languages; only in-app mirroring is off in this version, and converting formats such as MPG needs internet. Because downloaded HTML files do not open reliably on phones, use the web address + add-to-home-screen route on a phone.
 
-## 11. Kendi sinyal sunucunuz (isteğe bağlı)
+## 11. Your own signalling server (optional)
 
-Genel PeerJS sunucusu erişilemezse ya da kurum içinde kalmak isterseniz, ağdaki bir bilgisayarda `npx peer --port 9000` çalıştırıp her iki sayfayı `?ps=SUNUCU_IP:9000` ekiyle açabilirsiniz (https yoksa `&pss=0` de ekleyin).
+If the public PeerJS server cannot be reached, or you want to stay inside the institution, run `npx peer --port 9000` on a computer on the network and open both pages with `?ps=SERVER_IP:9000` (if there is no https, also add `&pss=0`).
 
-## Sonraki adım: yerel uygulama
+## Next step: native app
 
-Bu kod tabanı Capacitor ile Android (APK) ve iOS (Xcode projesi) olarak paketlenecek. Yerel sürüm; iPhone'da pozlama/odak kilidi, arka planda kesintisiz kayıt ve daha yüksek kare hızı ekleyecek.
+This code base will be packaged with Capacitor as an Android app (APK) and an iOS app (Xcode project). The native version will add exposure/focus lock on iPhone, uninterrupted recording in the background and higher frame rates.
